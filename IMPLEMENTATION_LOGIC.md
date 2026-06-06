@@ -3,9 +3,21 @@
 
 This document serves as the master guide for both **Frontend** and **Backend** developers to ensure the financial logic is robust, safe, and "pitch-ready" for judges.
 
+## 0. The Hybrid Ledger System
+
+Since the provided SwiftyEx APIs are currently **Read-Only** (profile, balances, history), SwiftyOS implements a **Local Shadow Ledger**.
+
+### How it works:
+1. **Initial Sync:** On user login, we fetch the "Master Balance" from `POST /miniapp/wallets`.
+2. **Local Transactions:** When a user pays a bill or saves money:
+   - We perform the math locally.
+   - We record the transaction in our **SQLite database**.
+   - We show the **"Available Balance"** (Master Balance minus SwiftyOS pending/local deductions).
+3. **The Pitch:** "SwiftyOS is the intelligent automation layer. We use SwiftyEx for liquidity and identity, while our internal engine manages the complex utility and social logic."
+
 ---
 
-## 1. The Auto-Conversion Engine (The "Heart")
+## 1. The Multi-Currency Conversion Engine
 
 SwiftyOS is built on the principle of a **Triple-Wallet Pocket System**:
 1. **NGN Wallet:** Local spending, bills, bank transfers.

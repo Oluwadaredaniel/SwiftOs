@@ -105,7 +105,33 @@ async function payBill(provider, amount, recipient, variationCode = null) {
 
 ---
 
-## 2. Auto-Conversion Engine
+## 2. SwiftyEx Engine Integration (The Source of Truth)
+
+SwiftyOS sits on top of the SwiftyEx engine. We use these endpoints to fetch the user's primary identity and balances.
+
+**Base URL:** `http://localhost:8000` (Update for hackathon)
+
+### 1. User Profile (`POST /miniapp/me`)
+- **Purpose:** Identifies the user and their KYC status.
+- **Payload:** `{ "initData": "TELEGRAM_INIT_DATA_STRING" }`
+- **Response:** `chat_id`, `username`, `kyc_verified`, `referral_code`.
+
+### 2. Wallet Balances (`POST /miniapp/wallets`)
+- **Purpose:** Fetches real-time USDT and NGN balances from SwiftyEx.
+- **Payload:** `{ "initData": "TELEGRAM_INIT_DATA_STRING" }`
+- **Response:** Array of wallets with `wallet_type`, `blockchain`, `balance`, and `deposit_address`.
+
+### 3. Transaction History (`POST /miniapp/transactions`)
+- **Purpose:** Returns the user's main engine history.
+- **Payload:** `{ "initData": "...", "page": 1, "wallet_type": "usdt" }`
+
+### 4. Market Rates (`GET /miniapp/rates`)
+- **Purpose:** Public endpoint for the most accurate Buy/Sell spreads.
+- **No authentication required.**
+
+---
+
+## 3. Auto-Conversion Engine
 
 Since users hold **USDT** but VTpass requires **NGN**, we must calculate the exact USDT cost in real-time.
 

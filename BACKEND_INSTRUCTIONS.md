@@ -15,10 +15,14 @@ Your goal is to build the "Invisible Infrastructure." You handle the currency ma
 
 ## 2. Core Service Responsibilities
 
-### A. Wallet & Rates Service
-- Fetch live USDT/NGN rates (mocked at 1348/1430 for now).
-- Apply the **Buy/Sell Spread** correctly (refer to `IMPLEMENTATION_LOGIC.md`).
-- Handle the **Rate Lock** (Store the generated quote in cache for 60s).
+### A. Wallet & Rates Service (SwiftyEx Proxy)
+- **Primary Job:** Forward requests to the SwiftyEx engine while appending/validating logic.
+- **Endpoints to Map:**
+  - `GET /api/wallet/me` -> Proxies `POST /miniapp/me`
+  - `GET /api/wallet/balances` -> Proxies `POST /miniapp/wallets`
+  - `GET /api/wallet/rates` -> Proxies `GET /miniapp/rates`
+- **Logic:** You must pass the user's raw `initData` string in the request body to SwiftyEx for every authenticated call.
+- **Rate Lock:** Store the generated quote from `/miniapp/rates` in cache for 60s.
 
 ### B. Bill Payment Service (The Proxy)
 - You are a bridge between the Frontend and **VTpass**.
