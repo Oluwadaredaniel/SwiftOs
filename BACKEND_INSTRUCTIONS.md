@@ -13,7 +13,38 @@ Your goal is to build the "Invisible Infrastructure." You handle the currency ma
 
 ---
 
-## 2. Core Service Responsibilities
+## 2. Service Logic Blueprints
+
+### A. The Conversion Middleware (`src/services/conversion.ts`)
+```ts
+export const calculateUSDT = (ngnAmount: number, rate: number) => {
+  const buffer = 0.02; // 2% platform slippage protection
+  const usdtCost = (ngnAmount / rate) * (1 + buffer);
+  return Math.ceil(usdtCost * 100) / 100; // Always round UP to 2 dec
+};
+```
+
+### B. Atomic Bill Payment Pattern (`src/routes/bills.ts`)
+Use Prisma transactions to ensure the "Shadow Ledger" stays consistent.
+```ts
+const result = await prisma.$transaction(async (tx) => {
+  // 1. Check local usdt_balance
+  // 2. Debit usdt_balance
+  // 3. Create local Transaction record (status: PENDING)
+  return { success: true };
+});
+
+// 4. CALL VTPass API (OUTSIDE Transaction)
+// 5. Update Transaction record based on API result (SUCCESS or REFUND)
+```
+
+### C. Swifty Link Escrow Logic
+- **Create:** Debit creator USDT -> Create `SwiftyLink` record status `ACTIVE`.
+- **Claim:** Check status -> Credit claimer USDT -> Update link status `CLAIMED`.
+
+---
+
+## 3. Core Service Responsibilities
 
 ### A. Wallet & Rates Service (SwiftyEx Proxy)
 - **Primary Job:** Forward requests to the SwiftyEx engine while appending/validating logic.

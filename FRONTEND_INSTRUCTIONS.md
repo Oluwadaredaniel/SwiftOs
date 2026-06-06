@@ -14,7 +14,51 @@ Your goal is to build a premium, "Telegram-native" financial interface. It shoul
 
 ---
 
-## 2. Screen-by-Screen Detailed Requirements
+## 2. Core Logic Blueprints
+
+### A. Telegram SDK Integration (`src/hooks/useTelegram.ts`)
+```ts
+export const useTelegram = () => {
+  const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+  
+  useEffect(() => {
+    tg?.ready();
+    tg?.expand();
+    // Sync theme colors with Telegram
+    document.documentElement.style.setProperty('--tg-bg', tg?.backgroundColor || '#fff');
+  }, []);
+
+  return {
+    tg,
+    user: tg?.initDataUnsafe?.user,
+    initData: tg?.initData,
+    haptic: (type: 'light' | 'medium' | 'heavy' = 'light') => 
+      tg?.HapticFeedback.impactOccurred(type),
+  };
+};
+```
+
+### B. Global State Management (`src/store/useStore.ts`)
+Use Zustand to track multi-currency balances across the app.
+```ts
+interface AppState {
+  balances: { ngn: number; usd: number; usdt: number };
+  setBalances: (newBalances: any) => void;
+  transactions: any[];
+  addTransaction: (tx: any) => void;
+}
+```
+
+### C. The 60s Rate Lock Logic
+When a user opens a payment/convert modal:
+1.  **Mount:** Fetch latest rates from `/api/wallet/rates`.
+2.  **State:** Set a `timer` state to 60.
+3.  **Effect:** `setInterval` to decrement every second.
+4.  **UI:** If `timer === 0`, disable the [Confirm] button and show a [Refresh Rate] button.
+
+---
+
+## 3. Screen-by-Screen Breakdown
 
 ### Screen 1: Smart Wallet (The Dashboard)
 - **Header:** Telegram User Avatar + "SwiftyOS" logo + Settings icon.
@@ -25,8 +69,8 @@ Your goal is to build a premium, "Telegram-native" financial interface. It shoul
     - **USDT Wallet:** Crypto USDT balance. 
       - *State:* If `usdt_address` is null, show a [Generate Address] button.
       - *State:* If address exists, show balance + QR code icon to view address.
-- **Quick Actions Grid:** 4 prominent buttons: [Send], [Receive], [Convert], [Bills].
-- **Transaction Preview:** Show the 3 most recent transactions with status icons (Success/Pending).
+- **Quick Actions Grid:** 4 prominent buttons in `src/components/Wallet/QuickActions.tsx`: [Send], [Receive], [Convert], [Bills].
+- **Transaction Preview:** Show the 3 most recent transactions using `src/components/Wallet/TransactionItem.tsx`.
 - **APIs:** 
   - `GET /api/wallet/balance`
   - `GET /api/wallet/transactions?limit=3`
