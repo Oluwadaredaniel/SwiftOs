@@ -121,7 +121,7 @@ When a user opens a payment/convert modal:
 - **Filters:** A horizontal pill-style filter bar: [All], [Bills], [Links], [Savings].
 - **Transaction Detail:** Tapping an item opens a drawer/modal with:
   - Reference ID (Mono font).
-  - Exact Time/Date.
+  - Exact Time/Date. 
   - Exchange Rate used at that time.
   - "Download Receipt" button (UI only).
 
