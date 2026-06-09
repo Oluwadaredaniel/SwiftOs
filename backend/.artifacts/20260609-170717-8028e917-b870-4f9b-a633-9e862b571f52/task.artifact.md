@@ -1,0 +1,11 @@
+# Tasks
+- [x] Explore project structure and setup
+- [x] Initialize implementation plan
+- [x] Set up basic backend infrastructure (Prisma, Express, ESM)
+- [x] Implement core services (User, Wallet, Conversion)
+- [x] Implement Real API Integrations (SwiftyEx Rates/Sync, VTpass Bills)
+- [x] Implement Secure Telegram Auth (HMAC validation)
+- [x] Set up Telegram Bot (grammY)
+- [x] Verify setup with smoke tests
+- [ ] Swifty Links (Left for other dev)
+- [ ] Savings Logic (Left for other dev)
