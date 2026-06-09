@@ -45,20 +45,20 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
   );
 
   return (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)]">
+    <div className="flex flex-col h-full">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-28">
         <div className="p-5 space-y-4">
           <div className="flex gap-2 overflow-x-auto pb-2">
             {filters.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-md whitespace-nowrap text-sm font-display font-bold transition ${
+                className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-display font-bold transition ${
                   filter === f
-                    ? 'bg-[var(--accent)] text-[var(--bg-primary)]'
-                    : 'bg-[var(--tg-secondary-bg-color)] text-[var(--tg-text-color)]'
+                    ? 'accent-gradient text-[var(--bg-primary)] shadow-[0_0_18px_var(--accent-glow)]'
+                    : 'glass text-[var(--text-secondary)]'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -68,22 +68,22 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
 
           {filtered.length === 0 ? (
             <Card className="py-8 text-center">
-              <p className="text-sm text-[var(--tg-hint-color)]">No transactions</p>
+              <p className="text-sm text-[var(--text-muted)]">No transactions</p>
             </Card>
           ) : (
             Object.entries(groupedByDate).map(([date, txs]) => (
               <div key={date} className="space-y-2">
-                <h4 className="text-xs font-semibold text-[var(--tg-hint-color)] uppercase px-1">{date}</h4>
+                <h4 className="text-xs font-display font-bold text-[var(--text-secondary)] uppercase tracking-[0.18em] px-1">{date}</h4>
                 {txs.map((tx) => (
-                  <Card key={tx.id} onClick={() => onTransactionClick?.(tx.id)} className="cursor-pointer hover:opacity-80 transition flex items-center justify-between">
+                  <Card key={tx.id} onClick={() => onTransactionClick?.(tx.id)} className="cursor-pointer flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTransactionIcon(tx.type)}</span>
                       <div>
-                        <div className="text-sm font-semibold text-[var(--tg-text-color)]">{tx.description}</div>
-                        <div className="text-xs text-[var(--tg-hint-color)]">{formatTime(tx.timestamp)}</div>
+                        <div className="text-sm font-display font-bold text-[var(--text-primary)]">{tx.description}</div>
+                        <div className="text-xs text-[var(--text-secondary)] font-mono-num">{formatTime(tx.timestamp)}</div>
                       </div>
                     </div>
-                    <div className={`text-sm font-bold ${tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
+                    <div className={`text-sm font-mono-num font-semibold ${tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
                       {tx.type === 'send' ? '-' : '+'}
                       {formatCurrency(tx.amount, tx.currency as any)}
                     </div>

@@ -78,7 +78,7 @@ function AppContent() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden" style={{ background: 'var(--tg-bg-color)' }}>
+    <div className="w-full h-screen flex flex-col overflow-hidden bg-transparent">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}

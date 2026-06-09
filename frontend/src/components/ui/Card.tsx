@@ -12,10 +12,10 @@ interface CardProps {
 
 export const Card = ({ children, className = '', onClick, glow = false }: CardProps) => (
   <motion.div
-    whileHover={{ scale: 1.01 }}
+    whileHover={{ y: -2 }}
     transition={{ type: 'spring', damping: 20 }}
     onClick={onClick}
-    className={`rounded-lg bg-[var(--bg-secondary)] border border-[var(--bg-tertiary)] p-4 backdrop-blur-sm ${glow ? 'shadow-[0_0_20px_rgba(0,217,255,0.2)]' : ''} hover:border-[var(--accent)] hover:border-opacity-50 transition-all ${className}`}
+    className={`glass rounded-2xl p-4 transition-all hover:border-[var(--accent)]/40 ${glow ? 'glow-accent' : ''} ${className}`}
   >
     {children}
   </motion.div>
@@ -33,14 +33,20 @@ export const BalanceCard = ({
   subtext?: string;
 }) => (
   <motion.div
-    whileHover={{ scale: 1.02 }}
+    whileHover={{ y: -3, scale: 1.01 }}
     transition={{ type: 'spring', damping: 20 }}
-    className="rounded-lg bg-gradient-to-br from-[var(--bg-secondary)] via-[var(--bg-tertiary)] to-[var(--bg-secondary)] border border-[var(--accent)] border-opacity-20 p-6 text-[var(--text-primary)] shadow-[0_0_30px_rgba(0,217,255,0.15)] hover:shadow-[0_0_40px_rgba(0,217,255,0.25)] transition-all backdrop-blur-sm"
+    className="glass relative overflow-hidden rounded-3xl p-6 text-[var(--text-primary)]"
   >
-    <div className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)] mb-3">{label}</div>
-    <div className="text-4xl font-display font-bold mb-2 text-[var(--accent)]">{amount}</div>
-    <div className="text-xs text-[var(--text-secondary)] font-display">{currency}</div>
-    {subtext && <div className="text-xs text-[var(--text-muted)] mt-3">{subtext}</div>}
+    {/* soft accent wash */}
+    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--accent)]/15 blur-3xl" />
+    <div className="relative">
+      <div className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">
+        {label}
+      </div>
+      <div className="text-4xl font-mono-num font-semibold mb-2 text-gradient">{amount}</div>
+      <div className="text-xs text-[var(--text-secondary)] font-display tracking-wide">{currency}</div>
+      {subtext && <div className="text-xs text-[var(--text-muted)] mt-3">{subtext}</div>}
+    </div>
   </motion.div>
 );
 
@@ -51,9 +57,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = ({ label, error, className = '', ...props }: InputProps) => (
   <div className="flex flex-col gap-2">
-    {label && <label className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)]">{label}</label>}
+    {label && (
+      <label className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)]">
+        {label}
+      </label>
+    )}
     <input
-      className={`px-4 py-3 rounded-md border border-[var(--bg-tertiary)] bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all backdrop-blur-sm ${className}`}
+      className={`px-4 py-3 rounded-xl border border-[var(--glass-border)] bg-white/[0.04] text-[var(--text-primary)] placeholder-[var(--text-muted)] backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/60 focus:border-transparent transition-all ${className}`}
       {...props}
     />
     {error && <span className="text-xs text-[var(--danger)]">{error}</span>}
@@ -62,8 +72,8 @@ export const Input = ({ label, error, className = '', ...props }: InputProps) =>
 
 export const Skeleton = ({ className = '' }: { className?: string }) => (
   <motion.div
-    animate={{ opacity: [0.5, 0.7, 0.5] }}
-    transition={{ duration: 2, repeat: Infinity }}
-    className={`bg-gradient-to-r from-[var(--bg-secondary)] via-[var(--bg-tertiary)] to-[var(--bg-secondary)] rounded-md ${className}`}
+    animate={{ opacity: [0.4, 0.65, 0.4] }}
+    transition={{ duration: 1.8, repeat: Infinity }}
+    className={`bg-white/[0.06] border border-[var(--glass-border)] backdrop-blur-md rounded-2xl ${className}`}
   />
 );

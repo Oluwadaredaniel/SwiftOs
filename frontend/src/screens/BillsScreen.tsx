@@ -36,18 +36,21 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
   const pastBills = bills.filter((b) => b.status !== 'active');
 
   return (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)]">
+    <div className="flex flex-col h-full">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-28">
         <div className="p-5 space-y-6">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-[var(--bg-secondary)] via-[var(--bg-tertiary)] to-[var(--bg-secondary)] border border-[var(--accent)] border-opacity-20 text-[var(--text-primary)] rounded-lg p-6 shadow-[0_0_30px_rgba(0,217,255,0.15)]">
-            <div className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)] mb-3">Total Monthly</div>
-            <div className="text-4xl font-display font-bold text-[var(--accent)]">₦{(upcomingBills.reduce((sum, b) => sum + b.amount, 0) * (4 / 7)).toLocaleString()}</div>
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="glass relative overflow-hidden rounded-3xl p-6 text-[var(--text-primary)]">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--accent-2)]/15 blur-3xl" />
+            <div className="relative">
+              <div className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Total Monthly</div>
+              <div className="text-4xl font-mono-num font-semibold text-gradient">₦{(upcomingBills.reduce((sum, b) => sum + b.amount, 0) * (4 / 7)).toLocaleString()}</div>
+            </div>
           </motion.div>
 
           <div>
-            <div className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)] mb-4">Upcoming Bills</div>
+            <div className="text-xs font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-4">Upcoming Bills</div>
             {upcomingBills.length === 0 ? (
               <Card className="py-8 text-center">
                 <p className="text-sm text-[var(--text-muted)]">No upcoming bills</p>
@@ -64,7 +67,7 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-display font-bold text-[var(--text-primary)]">{formatCurrency(bill.amount, 'NGN')}</div>
+                        <div className="text-sm font-mono-num font-semibold text-[var(--text-primary)]">{formatCurrency(bill.amount, 'NGN')}</div>
                         <Button size="sm" variant="secondary" className="mt-2">Pay</Button>
                       </div>
                     </Card>
@@ -75,7 +78,7 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
           </div>
 
           <div>
-            <div className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)] mb-4">Past Payments</div>
+            <div className="text-xs font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-4">Past Payments</div>
             {pastBills.length === 0 ? (
               <Card className="py-4 text-center">
                 <p className="text-xs text-[var(--text-muted)]">No past payments</p>

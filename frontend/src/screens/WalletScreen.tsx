@@ -66,13 +66,13 @@ export const WalletScreen = ({
   const item: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20 } } };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)]">
+    <div className="flex flex-col h-full">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-28">
         <motion.div variants={container} initial="hidden" animate="show" className="p-5 space-y-6">
           <motion.div variants={item} className="space-y-4">
-            <div className="font-display uppercase tracking-widest text-xs text-[var(--text-secondary)] px-1">
+            <div className="font-display uppercase tracking-[0.18em] text-xs text-[var(--text-secondary)] px-1">
               Your Wallets
             </div>
 
@@ -162,7 +162,7 @@ export const WalletScreen = ({
           </motion.div>
 
           <motion.div variants={item} className="space-y-4">
-            <div className="font-display uppercase tracking-widest text-xs text-[var(--text-secondary)] px-1">
+            <div className="font-display uppercase tracking-[0.18em] text-xs text-[var(--text-secondary)] px-1">
               Recent Activity
             </div>
 
@@ -179,19 +179,19 @@ export const WalletScreen = ({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
                   >
-                    <Card className="flex items-center justify-between hover:shadow-[0_0_20px_rgba(0,217,255,0.1)]">
+                    <Card className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-[var(--bg-tertiary)] flex items-center justify-center text-lg">
+                        <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-[var(--glass-border)] flex items-center justify-center text-lg">
                           {tx.type === 'send' ? '📤' : tx.type === 'receive' ? '📥' : tx.type === 'bill' ? '📱' : '🔄'}
                         </div>
                         <div>
                           <div className="text-sm font-display font-bold text-[var(--text-primary)]">{tx.description}</div>
-                          <div className="text-xs text-[var(--text-muted)] font-display">
+                          <div className="text-xs text-[var(--text-muted)] font-mono-num">
                             {new Date(tx.timestamp).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
                           </div>
                         </div>
                       </div>
-                      <div className={`text-sm font-display font-bold ${tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
+                      <div className={`text-sm font-mono-num font-semibold ${tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
                         {tx.type === 'send' ? '−' : '+'}
                         {formatCurrency(tx.amount, tx.currency as any)}
                       </div>

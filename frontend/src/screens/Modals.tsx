@@ -27,14 +27,14 @@ export const SendModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         <Input label="Recipient" placeholder="@username or Telegram link" value={recipient} onChange={(e) => setRecipient(e.target.value)} />
         <Input label="Amount (NGN)" type="number" placeholder="50000" value={amount} onChange={(e) => setAmount(e.target.value)} />
         {amount && (
-          <div className="bg-[var(--tg-secondary-bg-color)] p-3 rounded-lg text-sm border border-[var(--tg-hint-color)]/10">
-            <div className="flex justify-between">
-              <span className="text-[var(--tg-hint-color)]">Fee:</span>
-              <span>₦100</span>
+          <div className="glass p-4 rounded-2xl text-sm">
+            <div className="flex justify-between text-[var(--text-secondary)]">
+              <span>Fee:</span>
+              <span className="font-mono-num">₦100</span>
             </div>
             <div className="flex justify-between font-bold mt-1 text-[var(--accent)]">
               <span>Total:</span>
-              <span>{formatCurrency(parseInt(amount) + 100, 'NGN')}</span>
+              <span className="font-mono-num">{formatCurrency(parseInt(amount) + 100, 'NGN')}</span>
             </div>
           </div>
         )}
@@ -54,9 +54,9 @@ export const ReceiveModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     <Modal isOpen={isOpen} onClose={onClose} title="Receive Money">
       <div className="space-y-4 pb-8">
         <Input label="Amount (optional)" type="number" placeholder="50000" value={amount} onChange={(e) => setAmount(e.target.value)} />
-        <div className="bg-[var(--accent)]/5 border border-[var(--accent)]/20 p-4 rounded-lg">
-          <div className="text-xs text-[var(--tg-hint-color)] mb-2 uppercase tracking-wider font-bold">Your Payment Link</div>
-          <div className="text-sm font-mono break-all text-[var(--tg-text-color)] bg-[var(--bg-primary)] p-2 rounded">t.me/swiftyos/start?ref=abc123</div>
+        <div className="glass p-4 rounded-2xl !border-[var(--accent)]/30">
+          <div className="text-[11px] text-[var(--text-secondary)] mb-2 uppercase tracking-[0.18em] font-bold">Your Payment Link</div>
+          <div className="text-sm font-mono-num break-all text-[var(--text-primary)] bg-black/20 border border-[var(--glass-border)] p-2.5 rounded-xl">t.me/swiftyos/start?ref=abc123</div>
           <Button size="sm" variant="secondary" className="w-full mt-3" onClick={() => { haptic('light'); }}>
             Copy Link
           </Button>
@@ -118,20 +118,20 @@ export const ConvertModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       <div className="space-y-5 pb-8">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)]">From</label>
-            <select 
+            <label className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)]">From</label>
+            <select
               value={fromCurrency}
               onChange={(e) => setFromCurrency(e.target.value)}
-              className="w-full mt-2 p-3 rounded-md bg-[var(--bg-primary)] border border-[var(--bg-tertiary)] text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+              className="w-full mt-2 p-3 rounded-xl bg-white/[0.04] border border-[var(--glass-border)] text-[var(--text-primary)] backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/60"
             >
-              <option>USDT</option>
-              <option>NGN</option>
-              <option>USD</option>
+              <option className="bg-[var(--bg-secondary)]">USDT</option>
+              <option className="bg-[var(--bg-secondary)]">NGN</option>
+              <option className="bg-[var(--bg-secondary)]">USD</option>
             </select>
           </div>
           <div>
-            <label className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)]">To</label>
-            <div className="w-full mt-2 p-3 rounded-md bg-[var(--bg-primary)] border border-[var(--bg-tertiary)] text-[var(--text-primary)]">
+            <label className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)]">To</label>
+            <div className="w-full mt-2 p-3 rounded-xl bg-white/[0.04] border border-[var(--glass-border)] text-[var(--text-primary)] backdrop-blur-md">
               {fromCurrency === 'NGN' ? 'USDT' : 'NGN'}
             </div>
           </div>
@@ -140,18 +140,18 @@ export const ConvertModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
         <Input label="Amount" type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
         
         {amount && (
-          <div className="bg-[var(--bg-tertiary)]/50 p-4 rounded-lg border border-[var(--accent)] border-opacity-10">
+          <div className="glass p-4 rounded-2xl">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-[var(--text-secondary)] font-display uppercase">Estimated Output</span>
-              <div className={`flex items-center gap-1.5 text-xs font-bold ${timeLeft === 0 ? 'text-[var(--danger)]' : 'text-[var(--accent)]'}`}>
+              <span className="text-[11px] text-[var(--text-secondary)] font-display uppercase tracking-[0.18em]">Estimated Output</span>
+              <div className={`flex items-center gap-1.5 text-xs font-mono-num font-semibold ${timeLeft === 0 ? 'text-[var(--danger)]' : 'text-[var(--accent)]'}`}>
                 <Timer size={14} />
                 <span>{timeLeft}s</span>
               </div>
             </div>
-            <div className="text-xl font-display font-bold text-[var(--text-primary)]">
+            <div className="text-xl font-mono-num font-semibold text-gradient">
               ≈ {formatCurrency(parseInt(amount) * (fromCurrency === 'USDT' ? 1450 : 0.00065), fromCurrency === 'USDT' ? 'NGN' : 'USDT')}
             </div>
-            <div className="text-[10px] text-[var(--text-muted)] mt-1">1 USDT = ₦1,450.00</div>
+            <div className="text-[10px] text-[var(--text-muted)] mt-1 font-mono-num">1 USDT = ₦1,450.00</div>
           </div>
         )}
 
@@ -258,9 +258,9 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               <button
                 key={cat.id}
                 onClick={() => selectCategory(cat.id)}
-                className="flex flex-col items-center gap-3 p-5 rounded-lg bg-[var(--bg-primary)] border border-[var(--bg-tertiary)] hover:border-[var(--accent)] transition-all"
+                className="glass flex flex-col items-center gap-3 p-5 rounded-2xl hover:border-[var(--accent)]/50 transition-all"
               >
-                <div className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--accent)]">
+                <div className="w-12 h-12 rounded-2xl accent-gradient flex items-center justify-center text-[var(--bg-primary)]">
                   <cat.icon size={24} />
                 </div>
                 <span className="text-sm font-display font-bold">{cat.label}</span>
@@ -275,7 +275,7 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               <button
                 key={p.id}
                 onClick={() => selectProvider(p.id)}
-                className="w-full flex items-center justify-between p-4 rounded-lg bg-[var(--bg-primary)] border border-[var(--bg-tertiary)]"
+                className="glass w-full flex items-center justify-between p-4 rounded-2xl hover:border-[var(--accent)]/40 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full" style={{ backgroundColor: p.color }} />
@@ -293,11 +293,11 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               <button
                 key={item.id}
                 onClick={() => selectPlan(item)}
-                className="w-full flex items-center justify-between p-4 rounded-lg bg-[var(--bg-primary)] border border-[var(--bg-tertiary)]"
+                className="glass w-full flex items-center justify-between p-4 rounded-2xl hover:border-[var(--accent)]/40 transition-all"
               >
                 <div>
                   <div className="font-display font-bold text-sm">{item.name}</div>
-                  <div className="text-xs text-[var(--accent)] font-display">{formatCurrency(item.price, 'NGN')}</div>
+                  <div className="text-xs text-[var(--accent)] font-mono-num">{formatCurrency(item.price, 'NGN')}</div>
                 </div>
                 <ChevronRight size={18} className="text-[var(--text-muted)]" />
               </button>
@@ -307,11 +307,11 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
         {step === 4 && (
           <div className="space-y-5">
-            <div className="bg-[var(--bg-primary)] p-4 rounded-lg border border-[var(--bg-tertiary)]">
-              <div className="text-xs text-[var(--text-secondary)] uppercase mb-1">Summary</div>
+            <div className="glass p-4 rounded-2xl">
+              <div className="text-[11px] text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-1">Summary</div>
               <div className="flex justify-between font-bold">
                 <span>{provider?.toUpperCase()} - {plan?.name}</span>
-                <span className="text-[var(--accent)]">{formatCurrency(plan?.price, 'NGN')}</span>
+                <span className="text-[var(--accent)] font-mono-num">{formatCurrency(plan?.price, 'NGN')}</span>
               </div>
             </div>
 
@@ -354,14 +354,14 @@ export const CreateLinkModal = ({ isOpen, onClose }: { isOpen: boolean; onClose:
         <Input label="Note (Optional)" placeholder="Lunch money 🍕" value={note} onChange={(e) => setNote(e.target.value)} />
 
         {amount && (
-          <div className="bg-[var(--bg-tertiary)]/50 p-4 rounded-lg border border-[var(--accent)] border-opacity-10 text-sm">
+          <div className="glass p-4 rounded-2xl text-sm">
             <div className="flex justify-between text-[var(--text-secondary)] mb-1">
               <span>You Send:</span>
-              <span>{formatCurrency(parseInt(amount), 'NGN')}</span>
+              <span className="font-mono-num">{formatCurrency(parseInt(amount), 'NGN')}</span>
             </div>
             <div className="flex justify-between font-bold">
               <span>Equivalent (USDT):</span>
-              <span className="text-[var(--accent)]">{formatCurrency(parseInt(amount) / 1450, 'USDT')}</span>
+              <span className="text-[var(--accent)] font-mono-num">{formatCurrency(parseInt(amount) / 1450, 'USDT')}</span>
             </div>
           </div>
         )}

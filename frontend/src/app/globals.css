@@ -1,33 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  /* SwiftyOS Premium Fintech Design System */
+  /* ───────────────────────── SwiftyOS Design System ─────────────────────────
+     Glassmorphism / Aurora. Dark-first. Token names kept backward-compatible:
+     legacy references to --primary / --tg-* still resolve via the aliases below. */
+
+  /* Accent identity (cyan → violet gradient) */
   --accent: #00D9FF;
   --accent-dim: #00A8CC;
-  --accent-glow: #00D9FF;
+  --accent-2: #8B5CF6;          /* violet gradient end */
+  --accent-glow: rgba(0, 217, 255, 0.45);
 
-  --warning: #FF6B35;
-  --success: #00E676;
-  --danger: #FF4081;
+  --warning: #FF8A3D;
+  --success: #2EE6A8;
+  --danger: #FF5C8A;
 
-  /* Dark mode (primary) */
-  --bg-primary: #0A0E27;
-  --bg-secondary: #0F1535;
-  --bg-tertiary: #151D3B;
+  /* Deep aurora base */
+  --bg-primary: #070B1E;
+  --bg-secondary: #0E1430;
+  --bg-tertiary: #182149;
 
-  --text-primary: #E8EAEF;
-  --text-secondary: #A0A8C0;
-  --text-muted: #6B7280;
+  --text-primary: #EEF1F8;
+  --text-secondary: #A6AEC8;
+  --text-muted: #6B7493;
 
-  /* Telegram colors (override to dark) */
+  /* Glass surface tokens */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(18, 24, 54, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 8px 32px rgba(2, 6, 23, 0.55);
+
+  /* ── Backward-compat aliases (fixes prior token drift) ── */
+  --primary: var(--accent);
+  --primary-light: var(--accent-2);
+
+  /* Telegram colors (forced dark, mapped to our system) */
   --tg-color-scheme: dark;
-  --tg-bg-color: #0A0E27;
-  --tg-text-color: #E8EAEF;
-  --tg-hint-color: #A0A8C0;
-  --tg-link-color: #00D9FF;
-  --tg-button-color: #00D9FF;
-  --tg-button-text-color: #0A0E27;
-  --tg-secondary-bg-color: #0F1535;
+  --tg-bg-color: var(--bg-primary);
+  --tg-text-color: var(--text-primary);
+  --tg-hint-color: var(--text-secondary);
+  --tg-link-color: var(--accent);
+  --tg-button-color: var(--accent);
+  --tg-button-text-color: var(--bg-primary);
+  --tg-secondary-bg-color: var(--bg-secondary);
 
   color-scheme: dark;
 }
@@ -39,27 +55,73 @@
 }
 
 html {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Display headings */
 .font-display {
   font-family: 'Inter Tight', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
+/* Monospace — reserved for money figures, IDs, addresses (tabular feel) */
+.font-mono-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 body {
-  background: var(--tg-bg-color);
-  color: var(--tg-text-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   overflow: hidden;
   position: fixed;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%);
+}
+
+/* ───────────────────────── Aurora background ─────────────────────────
+   Soft, drifting blurred blobs behind the whole app. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -2;
+  pointer-events: none;
+  filter: blur(90px);
+  opacity: 0.55;
+}
+
+body::before {
+  background:
+    radial-gradient(40% 40% at 18% 22%, rgba(0, 217, 255, 0.55) 0%, transparent 70%),
+    radial-gradient(45% 45% at 82% 18%, rgba(139, 92, 246, 0.45) 0%, transparent 70%);
+  animation: aurora-drift-a 22s ease-in-out infinite alternate;
+}
+
+body::after {
+  background:
+    radial-gradient(42% 42% at 78% 82%, rgba(46, 230, 168, 0.30) 0%, transparent 70%),
+    radial-gradient(48% 48% at 22% 88%, rgba(255, 92, 138, 0.28) 0%, transparent 70%);
+  animation: aurora-drift-b 26s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-a {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(6%, 8%, 0) scale(1.15); }
+}
+@keyframes aurora-drift-b {
+  0%   { transform: translate3d(0, 0, 0) scale(1.1); }
+  100% { transform: translate3d(-7%, -6%, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none; }
 }
 
 #root, [id="__next"] {
@@ -69,45 +131,66 @@ body {
   flex-direction: column;
 }
 
-/* Scrollbar styles */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ───────────────────────── Glass surfaces ───────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 0 var(--glass-highlight);
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 -8px 40px rgba(2, 6, 23, 0.6), inset 0 1px 0 0 var(--glass-highlight);
 }
 
+/* ───────────────────────── Accent helpers ───────────────────────── */
+.accent-gradient {
+  background-image: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
+}
+
+.text-gradient {
+  background-image: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glow-accent {
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+.glow-accent-hover:hover {
+  box-shadow: 0 0 36px var(--accent-glow);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(107, 114, 128, 0.5);
+  background: rgba(166, 174, 200, 0.35);
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover { background: rgba(166, 174, 200, 0.55); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.7);
+::selection {
+  background: rgba(0, 217, 255, 0.3);
+  color: var(--text-primary);
 }
 
-/* Smooth transitions */
+/* Smooth transitions on interactive elements */
 button, a, input, select, textarea {
   transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Glow effect utility */
-.glow-accent {
-  box-shadow: 0 0 20px rgba(0, 217, 255, 0.2), inset 0 0 20px rgba(0, 217, 255, 0.05);
-}
-
-.glow-accent-hover:hover {
-  box-shadow: 0 0 30px rgba(0, 217, 255, 0.4), inset 0 0 30px rgba(0, 217, 255, 0.1);
-}
-
 /* Remove input autofill background */
 input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px var(--tg-secondary-bg-color) inset;
-  -webkit-text-fill-color: var(--tg-text-color);
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-secondary) inset;
+  -webkit-text-fill-color: var(--text-primary);
 }
-
 input:-webkit-autofill::first-line {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
 }

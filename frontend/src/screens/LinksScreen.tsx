@@ -42,13 +42,13 @@ export const LinksScreen = ({ onCreateLinkClick, onSettingsClick }: LinksScreenP
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)]">
+    <div className="flex flex-col h-full">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-28">
         <div className="p-5 space-y-6">
           <div>
-            <div className="text-xs font-display uppercase tracking-widest text-[var(--text-secondary)] mb-4">Active Links</div>
+            <div className="text-xs font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-4">Active Links</div>
             {activeLinks.length === 0 ? (
               <Card className="py-8 text-center">
                 <p className="text-sm text-[var(--text-muted)]">No active links</p>
@@ -58,11 +58,11 @@ export const LinksScreen = ({ onCreateLinkClick, onSettingsClick }: LinksScreenP
                 {activeLinks.map((link) => (
                   <Card key={link.id} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm font-semibold text-[var(--tg-text-color)]">{formatCurrency(link.amount, 'NGN')}</div>
-                      <span className="text-xs bg-[var(--success)] text-white px-2 py-1 rounded">Active</span>
+                      <div className="text-sm font-mono-num font-semibold text-[var(--text-primary)]">{formatCurrency(link.amount, 'NGN')}</div>
+                      <span className="text-[11px] font-display font-bold bg-[var(--success)]/20 text-[var(--success)] border border-[var(--success)]/30 px-2.5 py-1 rounded-full">Active</span>
                     </div>
-                    <div className="text-xs text-[var(--tg-hint-color)]">Created: {formatDate(link.expiryDate)}</div>
-                    {link.note && <div className="text-xs text-[var(--tg-text-color)]">"{link.note}"</div>}
+                    <div className="text-xs text-[var(--text-secondary)]">Created: {formatDate(link.expiryDate)}</div>
+                    {link.note && <div className="text-xs text-[var(--text-primary)]">"{link.note}"</div>}
                     <Button
                       size="sm"
                       variant="secondary"
@@ -79,20 +79,20 @@ export const LinksScreen = ({ onCreateLinkClick, onSettingsClick }: LinksScreenP
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-[var(--tg-hint-color)] uppercase mb-3">Claimed</h3>
+            <h3 className="text-xs font-display font-bold text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-3">Claimed</h3>
             {claimedLinks.length === 0 ? (
               <Card className="py-4 text-center">
-                <p className="text-xs text-[var(--tg-hint-color)]">No claimed links</p>
+                <p className="text-xs text-[var(--text-muted)]">No claimed links</p>
               </Card>
             ) : (
               <div className="space-y-2">
                 {claimedLinks.map((link) => (
                   <Card key={link.id} className="flex items-start justify-between">
                     <div>
-                      <div className="text-sm font-semibold text-[var(--tg-text-color)]">{formatCurrency(link.amount, 'NGN')}</div>
-                      <div className="text-xs text-[var(--tg-hint-color)]">Claimed by {link.claimedBy}</div>
+                      <div className="text-sm font-mono-num font-semibold text-[var(--text-primary)]">{formatCurrency(link.amount, 'NGN')}</div>
+                      <div className="text-xs text-[var(--text-secondary)]">Claimed by {link.claimedBy}</div>
                     </div>
-                    <span className="text-xs bg-[var(--success)] text-white px-2 py-1 rounded">✓ Claimed</span>
+                    <span className="text-[11px] font-display font-bold bg-[var(--text-muted)]/20 text-[var(--text-secondary)] border border-white/10 px-2.5 py-1 rounded-full">✓ Claimed</span>
                   </Card>
                 ))}
               </div>

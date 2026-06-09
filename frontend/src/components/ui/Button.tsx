@@ -1,6 +1,5 @@
 'use client';
 
-import { ReactNode } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 
 interface ButtonProps extends HTMLMotionProps<'button'> {
@@ -18,13 +17,18 @@ export const Button = ({
   className,
   ...props
 }: ButtonProps) => {
-  const baseStyles = 'font-display font-bold rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden';
+  const baseStyles =
+    'font-display font-bold rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden';
 
   const variants = {
-    primary: 'bg-[var(--accent)] text-[var(--bg-primary)] hover:shadow-[0_0_30px_rgba(0,217,255,0.4)] active:shadow-[0_0_20px_rgba(0,217,255,0.2)]',
-    secondary: 'bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--bg-tertiary)] hover:border-[var(--accent)] hover:shadow-[0_0_20px_rgba(0,217,255,0.2)]',
-    ghost: 'text-[var(--accent)] hover:bg-[var(--bg-secondary)] border border-[var(--accent)] border-opacity-30',
-    danger: 'bg-[var(--danger)] text-white hover:shadow-[0_0_30px_rgba(255,64,129,0.4)]',
+    primary:
+      'accent-gradient text-[var(--bg-primary)] shadow-[0_8px_24px_rgba(0,217,255,0.25)] hover:shadow-[0_8px_32px_rgba(0,217,255,0.45)]',
+    secondary:
+      'glass text-[var(--text-primary)] hover:border-[var(--accent)]/50 hover:shadow-[0_0_24px_var(--accent-glow)]',
+    ghost:
+      'bg-transparent text-[var(--accent)] border border-[var(--accent)]/40 hover:bg-[var(--accent)]/10',
+    danger:
+      'text-white shadow-[0_8px_24px_rgba(255,92,138,0.25)] hover:shadow-[0_8px_32px_rgba(255,92,138,0.45)] bg-[linear-gradient(120deg,#FF5C8A,#FF8A3D)]',
   };
 
   const sizes = {
@@ -36,7 +40,7 @@ export const Button = ({
   return (
     <motion.button
       whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.97 }}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className || ''}`}
       disabled={disabled || isLoading}
       {...props}
