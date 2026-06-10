@@ -52,4 +52,4 @@ async function verify() {
 verify().catch(err => {
     console.error(err);
 });
-//# sourceMappingURL=verify_core.js.map
+//# sourceMappingURL=smoke_test.js.map
