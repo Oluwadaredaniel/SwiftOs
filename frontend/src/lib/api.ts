@@ -1,118 +1,116 @@
 import { WalletBalance, Transaction, Bill, SwiftyLink, SavingsGoal } from '@/types';
 
-// Mocking API for frontend-only prototype
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+/**
+ * Base fetcher that automatically includes Telegram Init Data for authentication.
+ */
+const fetcher = async (endpoint: string, options: RequestInit = {}) => {
+  const initData = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp?.initData : '';
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Telegram-Init-Data': initData || '',
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+export const authAPI = {
+  login: async () => {
+    return fetcher('/auth/telegram', { method: 'POST' });
+  }
+};
 
 export const walletAPI = {
   getBalance: async () => {
-    await delay(500);
+    const data = await fetcher('/api/wallet/balances');
     return {
       status: 'success',
-      data: { ngn: 250500, usd: 120, usdt: 45.5, usdt_address: '0x71C765...d897' } as WalletBalance
+      data: {
+        ngn: data.ngn_balance,
+        usd: data.usd_balance,
+        usdt: data.usdt_balance,
+        usdt_address: data.usdt_address || 'Address pending...',
+        ngn_equivalent: data.ngn_equivalent
+      } as WalletBalance
     };
   },
   getTransactions: async (limit: number = 10) => {
-    await delay(800);
+    // Note: Backend endpoint for transactions still needs implementation in feature phase
     return {
       status: 'success',
-      data: [
-        { id: '1', type: 'bill', amount: 5000, currency: 'NGN', description: 'MTN Data Purchase', timestamp: new Date(), status: 'completed' },
-        { id: '2', type: 'receive', amount: 25, currency: 'USDT', description: 'Received from @crypto_king', timestamp: new Date(Date.now() - 86400000), status: 'completed' },
-      ] as Transaction[]
+      data: [] as Transaction[]
     };
   },
   getRates: async () => {
-    await delay(300);
-    return { status: 'success', data: { NGN_USDT: 1450, NGN_USD: 1400, USD_USDT: 1.02 } };
-  },
-  convert: async (from: string, to: string, amount: number) => {
-    await delay(1500);
-    return { status: 'success', message: 'Conversion successful' };
+    const data = await fetcher('/api/wallet/balances');
+    return {
+      status: 'success',
+      data: {
+        NGN_USDT: data.rates?.usdt_ngn || 1348,
+        NGN_USD: 1400, // Still mock until USD logic is added
+        USD_USDT: 1.02
+      }
+    };
   },
 };
 
 export const billsAPI = {
-  getProviders: async () => {
-    await delay(500);
-    return { status: 'success', data: [{ id: 'mtn', name: 'MTN' }, { id: 'airtel', name: 'Airtel' }] };
+  getProviders: async (category: string = 'data') => {
+    const data = await fetcher(`/api/bills/providers?category=${category}`);
+    return { status: 'success', data: data.content || [] };
   },
-  getVariations: async (providerId: string) => {
-    await delay(500);
-    return { status: 'success', data: [{ id: 'v1', name: '1GB Monthly', price: 1000 }] };
+  getVariations: async (serviceID: string) => {
+    const data = await fetcher(`/api/bills/variations?serviceID=${serviceID}`);
+    return { status: 'success', data: data.content?.varations || [] };
   },
-  createBill: async (data: any) => {
-    await delay(1000);
-    return { status: 'success', data: { ...data, id: Math.random().toString() } };
+  payBill: async (payload: {
+    serviceID: string;
+    amount: number;
+    phone: string;
+    variation_code?: string;
+  }) => {
+    return fetcher('/api/bills/pay', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
   },
-  getBills: async () => {
-    await delay(600);
-    return {
-      status: 'success',
-      data: [
-        { id: 'b1', name: 'MTN Weekly Data', amount: 2500, frequency: 'weekly', dueDate: new Date(Date.now() + 86400000 * 3), category: 'data', provider: 'MTN', status: 'active' },
-      ] as Bill[]
-    };
-  },
-  payBill: async (billId: string) => {
-    await delay(1000);
-    return { status: 'success' };
-  },
+  // Placeholders for future features
+  createBill: async (data: any) => ({ status: 'success', data }),
+  getBills: async () => ({ status: 'success', data: [] as Bill[] }),
 };
 
 export const linksAPI = {
-  create: async (data: any) => {
-    await delay(1000);
-    return { status: 'success', data: { id: 'link_' + Math.random(), ...data } };
-  },
-  list: async () => {
-    await delay(700);
-    return {
-      status: 'success',
-      data: [
-        { id: 'l1', amount: 5000, expiryDate: new Date(Date.now() + 86400000), status: 'active', note: 'Lunch money' },
-      ] as SwiftyLink[]
-    };
-  },
-  claim: async (linkId: string) => {
-    await delay(1200);
-    return { status: 'success' };
-  },
+  create: async (data: any) => ({ status: 'success', data }),
+  list: async () => ({ status: 'success', data: [] as SwiftyLink[] }),
+  claim: async (linkId: string) => ({ status: 'success' }),
 };
 
 export const savingsAPI = {
-  list: async () => {
-    await delay(800);
-    return {
-      status: 'success',
-      data: [
-        { id: 'g1', title: 'New Laptop', targetAmount: 850, currentAmount: 425, category: 'Electronics', createdAt: new Date() },
-      ] as SavingsGoal[]
-    };
-  },
-  create: async (data: any) => {
-    await delay(1000);
-    return { status: 'success', data: { ...data, id: 'goal_' + Math.random() } };
-  },
-  deposit: async (goalId: string, amount: number) => {
-    await delay(1000);
-    return { status: 'success' };
-  },
+  list: async () => ({ status: 'success', data: [] as SavingsGoal[] }),
+  create: async (data: any) => ({ status: 'success', data }),
+  deposit: async (goalId: string, amount: number) => ({ status: 'success' }),
 };
 
 export const transactionsAPI = {
   list: async (filters?: any) => {
-    await delay(1000);
+    // Note: Backend endpoint for transactions still needs implementation in feature phase
     return {
       status: 'success',
-      data: [
-        { id: '1', type: 'bill', amount: 5000, currency: 'NGN', description: 'MTN Data Purchase', timestamp: new Date(), status: 'completed' },
-        { id: '2', type: 'receive', amount: 25, currency: 'USDT', description: 'Received from @crypto_king', timestamp: new Date(Date.now() - 86400000), status: 'completed' },
-        { id: '3', type: 'convert', amount: 15000, currency: 'NGN', description: 'Converted USDT to NGN', timestamp: new Date(Date.now() - 172800000), status: 'completed' },
-      ] as Transaction[]
+      data: [] as Transaction[]
     };
   },
   getDetail: async (txId: string) => {
-    await delay(500);
     return { status: 'success', data: { id: txId, amount: 5000, currency: 'NGN', description: 'MTN Data Purchase' } };
   },
 };

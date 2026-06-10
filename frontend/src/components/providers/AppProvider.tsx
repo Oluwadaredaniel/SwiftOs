@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useStore } from '@/store/useStore';
-import { walletAPI } from '@/lib/api';
+import { walletAPI, authAPI } from '@/lib/api';
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, isReady } = useTelegram();
@@ -15,25 +15,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!isReady) return;
 
-    if (user) {
-      setUser(user);
-    }
     loadInitialData();
-  }, [isReady, user, setUser]);
+  }, [isReady]);
 
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      const [balanceRes] = await Promise.all([
-        walletAPI.getBalance(),
-      ]);
+      // Step 1: Perform handshake/auth with backend
+      const authRes = await authAPI.login();
+      if (authRes.success) {
+        setUser(authRes.user);
+      }
 
+      // Step 2: Fetch balances
+      const balanceRes = await walletAPI.getBalance();
       if (balanceRes?.data) {
         setBalances(balanceRes.data);
       }
     } catch (err) {
       console.error('Failed to load initial data:', err);
-      setError('Failed to load wallet data');
+      setError('Initialization failed. Please check your connection.');
     } finally {
       setLoading(false);
     }

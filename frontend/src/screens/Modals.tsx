@@ -8,7 +8,9 @@ import { formatCurrency } from '@/lib/utils';
 
 import { useEffect, useRef } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
-import { RefreshCw, Timer } from 'lucide-react';
+import { RefreshCw, Timer, ChevronRight, Smartphone, Tv, Zap as ZapIcon, Globe, Loader2 } from 'lucide-react';
+import { billsAPI, walletAPI } from '@/lib/api';
+import { useStore } from '@/store/useStore';
 
 export const SendModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { haptic } = useTelegram();
@@ -170,15 +172,21 @@ export const ConvertModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   );
 };
 
-import { ChevronRight, Smartphone, Tv, Zap as ZapIcon, Globe } from 'lucide-react';
+// Remove duplicate imports
+// import { ChevronRight, Smartphone, Tv, Zap as ZapIcon, Globe } from 'lucide-react';
 
 export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const { haptic } = useTelegram();
+  const { haptic, tg } = useTelegram();
+  const setBalances = useStore((state) => state.setBalances);
   const [step, setStep] = useState(1);
   const [category, setCategory] = useState<string | null>(null);
   const [provider, setProvider] = useState<string | null>(null);
   const [plan, setPlan] = useState<any>(null);
   const [recipient, setRecipient] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [providers, setProviders] = useState<any[]>([]);
+  const [variations, setVariations] = useState<any[]>([]);
 
   const CATEGORIES = [
     { id: 'data', label: 'Data', icon: Globe },
@@ -187,47 +195,49 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     { id: 'electricity', label: 'Electricity', icon: ZapIcon },
   ];
 
-  const PROVIDERS: Record<string, any[]> = {
-    data: [
-      { id: 'mtn', name: 'MTN', color: '#FFCC00' },
-      { id: 'airtel', name: 'Airtel', color: '#FF0000' },
-      { id: 'glo', name: 'Glo', color: '#00FF00' },
-      { id: '9mobile', name: '9mobile', color: '#006600' },
-    ],
-    tv: [
-      { id: 'dstv', name: 'DSTV', color: '#0099FF' },
-      { id: 'gotv', name: 'GOTV', color: '#FF0000' },
-    ],
-  };
-
-  const PLANS: Record<string, any[]> = {
-    mtn: [
-      { id: 'm1', name: '1.5GB Monthly', price: 1200 },
-      { id: 'm2', name: '2GB Weekly', price: 600 },
-      { id: 'm3', name: '5GB Monthly', price: 1500 },
-    ],
-    dstv: [
-      { id: 'd1', name: 'DSTV Compact', price: 12500 },
-      { id: 'd2', name: 'DSTV Premium', price: 29500 },
-    ],
-  };
-
   const handleBack = () => {
     haptic('light');
     if (step > 1) setStep(step - 1);
     else onClose();
   };
 
-  const selectCategory = (id: string) => {
+  const selectCategory = async (id: string) => {
     haptic('light');
     setCategory(id);
-    setStep(2);
+    setLoading(true);
+    try {
+      const res = await billsAPI.getProviders(id);
+      if (res.status === 'success') {
+        setProviders(res.data);
+        setStep(2);
+      }
+    } catch (err) {
+      tg?.showPopup({ message: 'Failed to load providers' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const selectProvider = (id: string) => {
+  const selectProvider = async (p: any) => {
     haptic('light');
-    setProvider(id);
-    setStep(3);
+    setProvider(p.serviceID);
+    setLoading(true);
+    try {
+      const res = await billsAPI.getVariations(p.serviceID);
+      if (res.status === 'success') {
+        // Airtime doesn't have variations in VTpass, it's just amount
+        if (res.data.length === 0) {
+          setStep(4); // Skip to details for airtime
+        } else {
+          setVariations(res.data);
+          setStep(3);
+        }
+      }
+    } catch (err) {
+      tg?.showPopup({ message: 'Failed to load variations' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectPlan = (item: any) => {
@@ -236,23 +246,54 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     setStep(4);
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     haptic('medium');
-    // Implement payment logic
-    onClose();
-    // Reset state for next time
+    setLoading(true);
+    try {
+      const payload = {
+        serviceID: provider!,
+        amount: plan ? plan.variation_amount : 1000, // Handle airtime fixed amount for now
+        phone: recipient,
+        variation_code: plan?.variation_code
+      };
+
+      const res = await billsAPI.payBill(payload);
+      if (res.success) {
+        tg?.showPopup({ message: 'Payment successful!' });
+        // Refresh balance
+        const balanceRes = await walletAPI.getBalance();
+        if (balanceRes.data) setBalances(balanceRes.data);
+        onClose();
+        reset();
+      }
+    } catch (err: any) {
+      tg?.showPopup({ message: err.message || 'Payment failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reset = () => {
     setTimeout(() => {
       setStep(1);
       setCategory(null);
       setProvider(null);
       setPlan(null);
+      setProviders([]);
+      setVariations([]);
     }, 300);
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleBack} title={step === 1 ? 'Select Category' : step === 2 ? 'Select Provider' : step === 3 ? 'Select Plan' : 'Enter Details'}>
       <div className="pb-8">
-        {step === 1 && (
+        {loading && (
+          <div className="flex justify-center py-10">
+            <Loader2 className="animate-spin text-[var(--accent)]" size={32} />
+          </div>
+        )}
+
+        {!loading && step === 1 && (
           <div className="grid grid-cols-2 gap-3">
             {CATEGORIES.map((cat) => (
               <button
@@ -269,17 +310,17 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           </div>
         )}
 
-        {step === 2 && (
-          <div className="space-y-2">
-            {(PROVIDERS[category!] || PROVIDERS['data']).map((p) => (
+        {!loading && step === 2 && (
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+            {providers.map((p) => (
               <button
-                key={p.id}
-                onClick={() => selectProvider(p.id)}
+                key={p.serviceID}
+                onClick={() => selectProvider(p)}
                 className="glass w-full flex items-center justify-between p-4 rounded-2xl hover:border-[var(--accent)]/40 transition-all"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full" style={{ backgroundColor: p.color }} />
-                  <span className="font-display font-bold">{p.name}</span>
+                <div className="flex items-center gap-3 text-left">
+                  <img src={p.image} alt="" className="w-8 h-8 rounded-full bg-white/10" />
+                  <span className="font-display font-bold text-sm">{p.name}</span>
                 </div>
                 <ChevronRight size={18} className="text-[var(--text-muted)]" />
               </button>
@@ -287,17 +328,17 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           </div>
         )}
 
-        {step === 3 && (
-          <div className="space-y-2">
-            {(PLANS[provider!] || PLANS['mtn']).map((item) => (
+        {!loading && step === 3 && (
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+            {variations.map((item) => (
               <button
-                key={item.id}
+                key={item.variation_code}
                 onClick={() => selectPlan(item)}
                 className="glass w-full flex items-center justify-between p-4 rounded-2xl hover:border-[var(--accent)]/40 transition-all"
               >
-                <div>
-                  <div className="font-display font-bold text-sm">{item.name}</div>
-                  <div className="text-xs text-[var(--accent)] font-mono-num">{formatCurrency(item.price, 'NGN')}</div>
+                <div className="text-left">
+                  <div className="font-display font-bold text-xs">{item.name}</div>
+                  <div className="text-xs text-[var(--accent)] font-mono-num">₦{Number(item.variation_amount).toLocaleString()}</div>
                 </div>
                 <ChevronRight size={18} className="text-[var(--text-muted)]" />
               </button>
@@ -305,13 +346,13 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           </div>
         )}
 
-        {step === 4 && (
+        {!loading && step === 4 && (
           <div className="space-y-5">
             <div className="glass p-4 rounded-2xl">
               <div className="text-[11px] text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-1">Summary</div>
               <div className="flex justify-between font-bold">
-                <span>{provider?.toUpperCase()} - {plan?.name}</span>
-                <span className="text-[var(--accent)] font-mono-num">{formatCurrency(plan?.price, 'NGN')}</span>
+                <span className="text-sm truncate mr-2">{provider?.toUpperCase()} {plan?.name}</span>
+                <span className="text-[var(--accent)] font-mono-num">₦{Number(plan?.variation_amount || 1000).toLocaleString()}</span>
               </div>
             </div>
 
@@ -323,7 +364,7 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             />
 
             <Button size="lg" className="w-full" onClick={handleFinalize} disabled={!recipient}>
-              Pay {formatCurrency(plan?.price, 'NGN')}
+              Pay ₦{Number(plan?.variation_amount || 1000).toLocaleString()}
             </Button>
           </div>
         )}
