@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Clock, CheckCircle } from 'lucide-react';
+import { Plus, Clock, CheckCircle, TrendingUp } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -41,11 +41,16 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
 
       <div className="flex-1 overflow-y-auto pb-28">
         <div className="p-5 space-y-6">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="glass relative overflow-hidden rounded-3xl p-6 text-[var(--text-primary)]">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--accent-2)]/15 blur-3xl" />
-            <div className="relative">
-              <div className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Total Monthly</div>
-              <div className="text-4xl font-mono-num font-semibold text-gradient">₦{(upcomingBills.reduce((sum, b) => sum + b.amount, 0) * (4 / 7)).toLocaleString()}</div>
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="glass relative overflow-hidden rounded-[32px] p-7 text-[var(--text-primary)]">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--success)]/10 blur-3xl" />
+            <div className="relative flex justify-between items-end">
+              <div>
+                <div className="text-[10px] font-display uppercase tracking-[0.25em] text-[var(--text-secondary)] mb-3">Est. Monthly Spend</div>
+                <div className="text-[32px] font-mono-num font-bold text-gradient leading-none tracking-tight">₦{(upcomingBills.reduce((sum, b) => sum + b.amount, 0) * (4 / 7)).toLocaleString()}</div>
+              </div>
+              <div className="w-10 h-10 rounded-2xl glass flex items-center justify-center text-[var(--success)]">
+                <TrendingUp size={20} />
+              </div>
             </div>
           </motion.div>
 
@@ -100,9 +105,13 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
         </div>
       </div>
 
-      <div className="fixed bottom-24 right-4">
-        <Button size="lg" onClick={onAddBillClick} className="rounded-full w-14 h-14 flex items-center justify-center">
-          <Plus size={24} />
+      <div className="fixed bottom-28 right-6">
+        <Button
+          size="lg"
+          onClick={onAddBillClick}
+          className="rounded-[22px] w-16 h-16 flex items-center justify-center shadow-2xl accent-gradient border-0 glow-accent"
+        >
+          <Plus size={32} />
         </Button>
       </div>
     </div>

@@ -78,87 +78,58 @@ export const WalletScreen = ({
 
             {loading ? (
               <>
-                <Skeleton className="h-28 w-full rounded-lg" />
-                <Skeleton className="h-28 w-full rounded-lg" />
-                <Skeleton className="h-28 w-full rounded-lg" />
+                <Skeleton className="h-32 w-full rounded-[32px]" />
+                <Skeleton className="h-32 w-full rounded-[32px]" />
+                <Skeleton className="h-32 w-full rounded-[32px]" />
               </>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <BalanceCard
-                  label="Naira Balance"
+                  label="Naira Wallet"
                   amount={formatCurrency(balances.ngn, 'NGN')}
                   currency="NGN"
+                  subtext="Daily spending"
                 />
                 <BalanceCard
-                  label="Dollar Balance"
+                  label="Dollar Wallet"
                   amount={formatCurrency(balances.usd, 'USD')}
-                  currency="USD (Virtual)"
+                  currency="USD"
+                  variant="premium"
+                  subtext="Stability savings"
                 />
                 <BalanceCard
-                  label="Crypto Balance"
+                  label="USDT Portfolio"
                   amount={formatCurrency(balances.usdt, 'USDT')}
                   currency="USDT"
+                  variant="success"
+                  subtext="Global & Social"
                 />
               </div>
             )}
           </motion.div>
 
-          <motion.div variants={item} className="grid grid-cols-2 gap-3">
-            <motion.div whileHover={{ y: -4 }} whileTap={{ y: 0 }}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => handleQuickAction(onSendClick)}
-                className="flex flex-col items-center gap-2 h-28 w-full"
+          <motion.div variants={item} className="grid grid-cols-4 gap-3">
+            {[
+              { icon: ArrowUpRight, label: 'Send', color: 'var(--accent)', onClick: onSendClick },
+              { icon: ArrowDownLeft, label: 'Receive', color: 'var(--warning)', onClick: onReceiveClick },
+              { icon: ArrowRightLeft, label: 'Swap', color: 'var(--accent-2)', onClick: onConvertClick },
+              { icon: Zap, label: 'Bills', color: 'var(--success)', onClick: onBillsClick },
+            ].map((action, i) => (
+              <motion.button
+                key={i}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleQuickAction(action.onClick)}
+                className="flex flex-col items-center gap-2 group"
               >
-                <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                  <ArrowUpRight size={28} className="text-[var(--accent)]" />
-                </motion.div>
-                <span className="font-display">Send</span>
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -4 }} whileTap={{ y: 0 }}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => handleQuickAction(onReceiveClick)}
-                className="flex flex-col items-center gap-2 h-28 w-full"
-              >
-                <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                  <ArrowDownLeft size={28} className="text-[var(--warning)]" />
-                </motion.div>
-                <span className="font-display">Receive</span>
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -4 }} whileTap={{ y: 0 }}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => handleQuickAction(onConvertClick)}
-                className="flex flex-col items-center gap-2 h-28 w-full"
-              >
-                <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                  <ArrowRightLeft size={28} className="text-[var(--accent)]" />
-                </motion.div>
-                <span className="font-display">Convert</span>
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -4 }} whileTap={{ y: 0 }}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => handleQuickAction(onBillsClick)}
-                className="flex flex-col items-center gap-2 h-28 w-full"
-              >
-                <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                  <Zap size={28} className="text-[var(--success)]" />
-                </motion.div>
-                <span className="font-display">Bills</span>
-              </Button>
-            </motion.div>
+                <div className="w-14 h-14 rounded-2xl glass flex items-center justify-center transition-all group-hover:border-[var(--accent)]/50 group-hover:bg-white/10">
+                  <action.icon size={22} style={{ color: action.color }} />
+                </div>
+                <span className="text-[11px] font-display font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+                  {action.label}
+                </span>
+              </motion.button>
+            ))}
           </motion.div>
 
           <motion.div variants={item} className="space-y-4">

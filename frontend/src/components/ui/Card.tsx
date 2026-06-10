@@ -26,29 +26,53 @@ export const BalanceCard = ({
   amount,
   currency,
   subtext,
+  variant = 'default',
 }: {
   label: string;
   amount: string;
   currency: string;
   subtext?: string;
-}) => (
-  <motion.div
-    whileHover={{ y: -3, scale: 1.01 }}
-    transition={{ type: 'spring', damping: 20 }}
-    className="glass relative overflow-hidden rounded-3xl p-6 text-[var(--text-primary)]"
-  >
-    {/* soft accent wash */}
-    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--accent)]/15 blur-3xl" />
-    <div className="relative">
-      <div className="text-[11px] font-display uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">
-        {label}
+  variant?: 'default' | 'premium' | 'success';
+}) => {
+  const gradientClass =
+    variant === 'premium' ? 'from-[var(--accent-2)] to-[#C084FC]' :
+    variant === 'success' ? 'from-[var(--success)] to-[#34D399]' :
+    'from-[var(--accent)] to-[var(--accent-2)]';
+
+  return (
+    <motion.div
+      whileHover={{ y: -3, scale: 1.01 }}
+      transition={{ type: 'spring', damping: 20 }}
+      className="glass relative overflow-hidden rounded-[32px] p-6 text-[var(--text-primary)]"
+    >
+      {/* Background aurora blur */}
+      <div className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-20 blur-3xl bg-gradient-to-tr ${gradientClass}`} />
+      <div className={`pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full opacity-10 blur-3xl bg-gradient-to-tr ${gradientClass}`} />
+
+      <div className="relative">
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-[10px] font-display uppercase tracking-[0.25em] text-[var(--text-secondary)]">
+            {label}
+          </div>
+          <div className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+            {currency}
+          </div>
+        </div>
+
+        <div className="text-[34px] font-mono-num font-bold mb-1 tracking-tight">
+          {amount.split('.')[0]}<span className="opacity-40 text-[24px]">.{amount.split('.')[1] || '00'}</span>
+        </div>
+
+        {subtext && (
+          <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] font-display mt-2">
+            <div className="w-1 h-1 rounded-full bg-[var(--accent)]" />
+            {subtext}
+          </div>
+        )}
       </div>
-      <div className="text-4xl font-mono-num font-semibold mb-2 text-gradient">{amount}</div>
-      <div className="text-xs text-[var(--text-secondary)] font-display tracking-wide">{currency}</div>
-      {subtext && <div className="text-xs text-[var(--text-muted)] mt-3">{subtext}</div>}
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;

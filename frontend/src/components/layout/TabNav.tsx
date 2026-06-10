@@ -28,7 +28,7 @@ export const TabNav = ({ activeTab, onTabChange }: TabNavProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-strong fixed bottom-4 left-4 right-4 rounded-3xl px-2 py-2 flex gap-1 justify-around z-40"
+      className="glass-strong fixed bottom-6 left-6 right-6 rounded-[28px] px-2 py-2 flex gap-1 justify-around z-40 border-t border-white/5"
     >
       {TABS.map(({ id, label, icon: Icon }) => (
         <motion.button

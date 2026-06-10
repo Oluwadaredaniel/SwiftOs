@@ -11,25 +11,25 @@
   --accent-2: #8B5CF6;          /* violet gradient end */
   --accent-glow: rgba(0, 217, 255, 0.45);
 
-  --warning: #FF8A3D;
-  --success: #2EE6A8;
-  --danger: #FF5C8A;
+  --warning: #FFB347; /* Warmer yellow for premiums */
+  --success: #00FF9D; /* Neon success */
+  --danger: #FF3B6B;  /* Vibrant red */
 
   /* Deep aurora base */
-  --bg-primary: #070B1E;
-  --bg-secondary: #0E1430;
-  --bg-tertiary: #182149;
+  --bg-primary: #050816; /* Even deeper navy */
+  --bg-secondary: #0D1226;
+  --bg-tertiary: #161D3D;
 
-  --text-primary: #EEF1F8;
-  --text-secondary: #A6AEC8;
-  --text-muted: #6B7493;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #475569;
 
   /* Glass surface tokens */
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-bg-strong: rgba(18, 24, 54, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-highlight: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 8px 32px rgba(2, 6, 23, 0.55);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-strong: rgba(13, 18, 38, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 
   /* ── Backward-compat aliases (fixes prior token drift) ── */
   --primary: var(--accent);

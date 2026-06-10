@@ -1,16 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Card';
 import { formatCurrency } from '@/lib/utils';
-
-import { useEffect, useRef } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
-import { RefreshCw, Timer, ChevronRight, Smartphone, Tv, Zap as ZapIcon, Globe, Loader2 } from 'lucide-react';
+import {
+  RefreshCw,
+  Timer,
+  ChevronRight,
+  Smartphone,
+  Tv,
+  Zap as ZapIcon,
+  Globe,
+  Loader2
+} from 'lucide-react';
 import { billsAPI, walletAPI } from '@/lib/api';
 import { useStore } from '@/store/useStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const SendModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { haptic } = useTelegram();
@@ -171,9 +179,6 @@ export const ConvertModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     </Modal>
   );
 };
-
-// Remove duplicate imports
-// import { ChevronRight, Smartphone, Tv, Zap as ZapIcon, Globe } from 'lucide-react';
 
 export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { haptic, tg } = useTelegram();

@@ -63,10 +63,17 @@ declare global {
 export const useTelegram = () => {
   const [tg, setTg] = useState<TelegramWebApp | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [isTelegram, setIsTelegram] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
       const webApp = window.Telegram.WebApp;
+
+      // Basic check if we are actually inside Telegram
+      if (webApp.initData) {
+        setIsTelegram(true);
+      }
+
       webApp.ready();
       webApp.expand();
 
@@ -109,6 +116,7 @@ export const useTelegram = () => {
   return {
     tg,
     isReady,
+    isTelegram,
     user: tg?.initDataUnsafe?.user || null,
     initData: tg?.initData || null,
     haptic,

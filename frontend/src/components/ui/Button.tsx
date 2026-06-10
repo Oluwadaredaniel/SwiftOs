@@ -22,19 +22,19 @@ export const Button = ({
 
   const variants = {
     primary:
-      'accent-gradient text-[var(--bg-primary)] shadow-[0_8px_24px_rgba(0,217,255,0.25)] hover:shadow-[0_8px_32px_rgba(0,217,255,0.45)]',
+      'accent-gradient text-black shadow-lg hover:shadow-[0_0_24px_var(--accent-glow)] border-0',
     secondary:
-      'glass text-[var(--text-primary)] hover:border-[var(--accent)]/50 hover:shadow-[0_0_24px_var(--accent-glow)]',
+      'glass text-[var(--text-primary)] border-white/5 shadow-md hover:bg-white/5 active:bg-white/10',
     ghost:
-      'bg-transparent text-[var(--accent)] border border-[var(--accent)]/40 hover:bg-[var(--accent)]/10',
+      'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)]/10',
     danger:
-      'text-white shadow-[0_8px_24px_rgba(255,92,138,0.25)] hover:shadow-[0_8px_32px_rgba(255,92,138,0.45)] bg-[linear-gradient(120deg,#FF5C8A,#FF8A3D)]',
+      'text-white shadow-lg bg-gradient-to-tr from-[var(--danger)] to-[#FF7E9F] border-0',
   };
 
   const sizes = {
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-3 text-sm',
-    lg: 'px-6 py-4 text-base min-h-[44px]',
+    sm: 'px-4 py-2 text-[13px]',
+    md: 'px-6 py-3 text-[14px]',
+    lg: 'px-8 py-4 text-[16px] min-h-[56px]',
   };
 
   return (
