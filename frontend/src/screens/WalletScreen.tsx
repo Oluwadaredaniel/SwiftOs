@@ -108,24 +108,22 @@ export const WalletScreen = ({
             )}
           </motion.div>
 
-          <motion.div variants={item} className="grid grid-cols-4 gap-3">
+          <motion.div variants={item} className="grid grid-cols-2 gap-3">
             {[
-              { icon: ArrowUpRight, label: 'Send', color: 'var(--accent)', onClick: onSendClick },
-              { icon: ArrowDownLeft, label: 'Receive', color: 'var(--warning)', onClick: onReceiveClick },
-              { icon: ArrowRightLeft, label: 'Swap', color: 'var(--accent-2)', onClick: onConvertClick },
-              { icon: Zap, label: 'Bills', color: 'var(--success)', onClick: onBillsClick },
+              { icon: Zap, label: 'Add Bill', color: 'var(--success)', onClick: onBillsClick },
+              { icon: ArrowRightLeft, label: 'Convert', color: 'var(--accent-2)', onClick: onConvertClick },
             ].map((action, i) => (
               <motion.button
                 key={i}
                 whileHover={{ y: -4, scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleQuickAction(action.onClick)}
-                className="flex flex-col items-center gap-2 group"
+                className="flex flex-col items-center gap-2 group glass p-5 rounded-[24px]"
               >
-                <div className="w-14 h-14 rounded-2xl glass flex items-center justify-center transition-all group-hover:border-[var(--accent)]/50 group-hover:bg-white/10">
-                  <action.icon size={22} style={{ color: action.color }} />
+                <div className="w-12 h-12 rounded-2xl accent-gradient/10 flex items-center justify-center transition-all group-hover:border-[var(--accent)]/50 group-hover:bg-white/10">
+                  <action.icon size={24} style={{ color: action.color }} />
                 </div>
-                <span className="text-[11px] font-display font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+                <span className="text-[13px] font-display font-bold text-[var(--text-primary)]">
                   {action.label}
                 </span>
               </motion.button>
@@ -137,7 +135,12 @@ export const WalletScreen = ({
               Recent Activity
             </div>
 
-            {transactions.length === 0 ? (
+            {loading ? (
+              <Card className="py-12 text-center">
+                <Loader2 className="animate-spin text-[var(--accent)] mx-auto mb-2" size={24} />
+                <p className="text-sm text-[var(--text-muted)]">Fetching activity...</p>
+              </Card>
+            ) : transactions.length === 0 ? (
               <Card className="py-12 text-center">
                 <p className="text-sm text-[var(--text-muted)]">No transactions yet</p>
               </Card>

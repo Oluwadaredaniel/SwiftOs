@@ -189,13 +189,14 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   const [plan, setPlan] = useState<any>(null);
   const [recipient, setRecipient] = useState('');
   const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState('');
 
   const [providers, setProviders] = useState<any[]>([]);
   const [variations, setVariations] = useState<any[]>([]);
 
   const CATEGORIES = [
-    { id: 'data', label: 'Data', icon: Globe },
     { id: 'airtime', label: 'Airtime', icon: Smartphone },
+    { id: 'data', label: 'Data', icon: Globe },
     { id: 'tv', label: 'TV', icon: Tv },
     { id: 'electricity', label: 'Electricity', icon: ZapIcon },
   ];
@@ -255,9 +256,11 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     haptic('medium');
     setLoading(true);
     try {
+      const finalAmount = category === 'airtime' ? parseInt(amount) : (plan ? plan.variation_amount : 1000);
+
       const payload = {
         serviceID: provider!,
-        amount: plan ? plan.variation_amount : 1000, // Handle airtime fixed amount for now
+        amount: finalAmount,
         phone: recipient,
         variation_code: plan?.variation_code
       };
@@ -354,12 +357,24 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
         {!loading && step === 4 && (
           <div className="space-y-5">
             <div className="glass p-4 rounded-2xl">
-              <div className="text-[11px] text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-1">Summary</div>
+              <div className="text-[11px] text-[var(--text-secondary)] uppercase tracking-[0.25em] mb-1">Summary</div>
               <div className="flex justify-between font-bold">
-                <span className="text-sm truncate mr-2">{provider?.toUpperCase()} {plan?.name}</span>
-                <span className="text-[var(--accent)] font-mono-num">₦{Number(plan?.variation_amount || 1000).toLocaleString()}</span>
+                <span className="text-sm truncate mr-2">{provider?.toUpperCase()} {plan?.name || category?.toUpperCase()}</span>
+                {category !== 'airtime' && (
+                  <span className="text-[var(--accent)] font-mono-num">₦{Number(plan?.variation_amount || 1000).toLocaleString()}</span>
+                )}
               </div>
             </div>
+
+            {category === 'airtime' && (
+              <Input
+                label="Amount (NGN)"
+                type="number"
+                placeholder="1000"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            )}
 
             <Input 
               label={category === 'data' || category === 'airtime' ? 'Phone Number' : 'Account Number'} 
@@ -368,8 +383,13 @@ export const AddBillModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               onChange={(e) => setRecipient(e.target.value)} 
             />
 
-            <Button size="lg" className="w-full" onClick={handleFinalize} disabled={!recipient}>
-              Pay ₦{Number(plan?.variation_amount || 1000).toLocaleString()}
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={handleFinalize}
+              disabled={!recipient || (category === 'airtime' && !amount)}
+            >
+              {category === 'airtime' ? `Pay ₦${Number(amount || 0).toLocaleString()}` : `Pay ₦${Number(plan?.variation_amount || 1000).toLocaleString()}`}
             </Button>
           </div>
         )}
