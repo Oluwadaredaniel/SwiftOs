@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, Zap } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, Zap, Info, HelpCircle } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useTelegram } from '@/hooks/useTelegram';
 import { formatCurrency } from '@/lib/utils';
@@ -9,31 +9,26 @@ import { Button } from '@/components/ui/Button';
 import { Card, BalanceCard, Skeleton } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
 import { walletAPI, transactionsAPI } from '@/lib/api';
-import { motion, Variants } from 'framer-motion';
-
-interface WalletScreenProps {
-  onSendClick: () => void;
-  onReceiveClick: () => void;
-  onConvertClick: () => void;
-  onBillsClick: () => void;
-  onSettingsClick: () => void;
-  onViewAllTransactions: () => void;
-}
+import { motion, Variants, AnimatePresence } from 'framer-motion';
 
 export const WalletScreen = ({
-  onSendClick,
-  onReceiveClick,
   onConvertClick,
   onBillsClick,
   onSettingsClick,
   onViewAllTransactions,
-}: WalletScreenProps) => {
-  const { haptic } = useTelegram();
+}: {
+  onConvertClick: () => void;
+  onBillsClick: () => void;
+  onSettingsClick: () => void;
+  onViewAllTransactions: () => void;
+}) => {
+  const { haptic, tg } = useTelegram();
   const balances = useStore((state) => state.balances);
   const transactions = useStore((state) => state.transactions);
   const loading = useStore((state) => state.loading);
   const setBalances = useStore((state) => state.setBalances);
   const setTransactions = useStore((state) => state.setTransactions);
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     refreshData();
@@ -49,7 +44,7 @@ export const WalletScreen = ({
       if (balanceRes?.data) setBalances(balanceRes.data);
       if (txRes?.data) setTransactions(txRes.data);
     } catch (err) {
-      console.error('Failed to refresh:', err);
+      console.error('Failed to refresh wallet data:', err);
     }
   };
 
@@ -63,126 +58,195 @@ export const WalletScreen = ({
     show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
   };
 
-  const item: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20 } } };
+  const item: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 200 } }
+  };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-28">
-        <motion.div variants={container} initial="hidden" animate="show" className="p-5 space-y-6">
-          <motion.div variants={item} className="space-y-4">
-            <div className="font-display uppercase tracking-[0.18em] text-xs text-[var(--text-secondary)] px-1">
-              Your Wallets
-            </div>
+      <div className="flex-1 overflow-y-auto pb-40 px-6 pt-2 custom-scrollbar">
+        <motion.div variants={container} initial="hidden" animate="show" className="space-y-9">
 
+          {/* Main Portfolio Header */}
+          <motion.div variants={item}>
             {loading ? (
-              <>
-                <Skeleton className="h-32 w-full rounded-[32px]" />
-                <Skeleton className="h-32 w-full rounded-[32px]" />
-                <Skeleton className="h-32 w-full rounded-[32px]" />
-              </>
+              <Skeleton className="h-64 w-full rounded-[48px]" />
             ) : (
-              <div className="space-y-4">
-                <BalanceCard
-                  label="Naira Wallet"
-                  amount={formatCurrency(balances.ngn, 'NGN')}
-                  currency="NGN"
-                  subtext="Daily spending"
-                />
-                <BalanceCard
-                  label="Dollar Wallet"
-                  amount={formatCurrency(balances.usd, 'USD')}
-                  currency="USD"
-                  variant="premium"
-                  subtext="Stability savings"
-                />
-                <BalanceCard
-                  label="USDT Portfolio"
-                  amount={formatCurrency(balances.usdt, 'USDT')}
-                  currency="USDT"
-                  variant="success"
-                  subtext="Global & Social"
-                />
-              </div>
+              <BalanceCard
+                variant="large"
+                label="Total Portfolio Value"
+                amount={formatCurrency(balances.ngn || 0, 'NGN')}
+                currency="NGN"
+              />
             )}
           </motion.div>
 
-          <motion.div variants={item} className="grid grid-cols-2 gap-3">
-            {[
-              { icon: Zap, label: 'Add Bill', color: 'var(--success)', onClick: onBillsClick },
-              { icon: ArrowRightLeft, label: 'Convert', color: 'var(--accent-2)', onClick: onConvertClick },
-            ].map((action, i) => (
-              <motion.button
-                key={i}
-                whileHover={{ y: -4, scale: 1.02 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleQuickAction(action.onClick)}
-                className="flex flex-col items-center gap-2 group glass p-5 rounded-[24px]"
-              >
-                <div className="w-12 h-12 rounded-2xl accent-gradient/10 flex items-center justify-center transition-all group-hover:border-[var(--accent)]/50 group-hover:bg-white/10">
-                  <action.icon size={24} style={{ color: action.color }} />
-                </div>
-                <span className="text-[13px] font-display font-bold text-[var(--text-primary)]">
-                  {action.label}
-                </span>
-              </motion.button>
-            ))}
+          {/* Premium Core Utilities */}
+          <motion.div variants={item} className="grid grid-cols-2 gap-4">
+            <motion.button
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleQuickAction(onBillsClick)}
+              className="flex items-center justify-center gap-3 h-[80px] rounded-[32px] accent-gradient text-black font-display font-black shadow-[0_20px_40px_rgba(0,217,255,0.25)] border-0"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-black/10 flex items-center justify-center">
+                <Zap size={24} fill="currentColor" />
+              </div>
+              <span className="text-[15px] uppercase tracking-wider">Add Bill</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleQuickAction(onConvertClick)}
+              className="flex items-center justify-center gap-3 h-[80px] rounded-[32px] glass-strong border-white/10 text-[var(--text-primary)] font-display font-black"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-[var(--accent)]">
+                <ArrowRightLeft size={24} />
+              </div>
+              <span className="text-[15px] uppercase tracking-wider">Swap</span>
+            </motion.button>
           </motion.div>
 
-          <motion.div variants={item} className="space-y-4">
-            <div className="font-display uppercase tracking-[0.18em] text-xs text-[var(--text-secondary)] px-1">
-              Recent Activity
+          {/* Detailed Wallet Breakdown */}
+          <motion.div variants={item} className="space-y-5">
+            <div className="flex items-center justify-between px-2">
+              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Digital Assets</span>
+              <button onClick={() => setShowGuide(true)} className="flex items-center gap-1.5 text-[10px] font-display font-bold text-[var(--accent)] uppercase tracking-widest bg-[var(--accent)]/10 px-3 py-1.5 rounded-full border border-[var(--accent)]/20">
+                <HelpCircle size={12} />
+                <span>Guide</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {loading ? (
+                <>
+                  <Skeleton className="h-28 w-full rounded-[32px]" />
+                  <Skeleton className="h-28 w-full rounded-[32px]" />
+                </>
+              ) : (
+                <>
+                  <BalanceCard
+                    label="USDT Stablecoin (Escrow)"
+                    amount={formatCurrency(balances.usdt || 0, 'USDT')}
+                    currency="USDT"
+                    variant="success"
+                    subtext="Available for social links"
+                  />
+                  <BalanceCard
+                    label="US Dollar (Virtual Card)"
+                    amount={formatCurrency(balances.usd || 0, 'USD')}
+                    currency="USD"
+                    variant="premium"
+                    subtext="Used for international subs"
+                  />
+                </>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Activity Section */}
+          <motion.div variants={item} className="space-y-5">
+            <div className="flex items-center justify-between px-2">
+              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Live Activity</span>
+              {transactions && transactions.length > 0 && (
+                <button onClick={onViewAllTransactions} className="text-[10px] font-display font-black text-[var(--accent)] uppercase tracking-[0.2em]">
+                  History →
+                </button>
+              )}
             </div>
 
             {loading ? (
-              <Card className="py-12 text-center">
-                <Loader2 className="animate-spin text-[var(--accent)] mx-auto mb-2" size={24} />
-                <p className="text-sm text-[var(--text-muted)]">Fetching activity...</p>
-              </Card>
-            ) : transactions.length === 0 ? (
-              <Card className="py-12 text-center">
-                <p className="text-sm text-[var(--text-muted)]">No transactions yet</p>
+              <div className="space-y-3">
+                <Skeleton className="h-24 w-full rounded-[32px]" />
+                <Skeleton className="h-24 w-full rounded-[32px]" />
+              </div>
+            ) : !transactions || transactions.length === 0 ? (
+              <Card className="py-20 text-center border-dashed border-white/5 bg-transparent rounded-[40px]">
+                <div className="w-16 h-16 rounded-[24px] glass flex items-center justify-center mx-auto mb-5 shadow-2xl">
+                  <ArrowUpRight size={24} className="text-[var(--text-muted)] opacity-30" />
+                </div>
+                <p className="text-[15px] text-[var(--text-secondary)] font-display font-bold">No activity yet</p>
+                <p className="text-[11px] text-[var(--text-muted)] opacity-50 mt-1 uppercase tracking-[0.15em]">Perform a swap or pay a bill to start</p>
               </Card>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {transactions.slice(0, 3).map((tx, idx) => (
-                  <motion.div
-                    key={tx.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                  >
-                    <Card className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-[var(--glass-border)] flex items-center justify-center text-lg">
-                          {tx.type === 'send' ? '📤' : tx.type === 'receive' ? '📥' : tx.type === 'bill' ? '📱' : '🔄'}
-                        </div>
-                        <div>
-                          <div className="text-sm font-display font-bold text-[var(--text-primary)]">{tx.description}</div>
-                          <div className="text-xs text-[var(--text-muted)] font-mono-num">
-                            {new Date(tx.timestamp).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
-                          </div>
+                  <Card key={tx.id} className="flex items-center justify-between py-6 px-7 rounded-[32px] border-white/5 bg-white/[0.01] hover:bg-white/[0.04] active:scale-[0.98] transition-all">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-[20px] glass flex items-center justify-center text-2xl shadow-xl border-white/5 bg-white/5">
+                        {tx.type === 'bill' ? '📱' : tx.type === 'convert' ? '🔄' : tx.type === 'link' ? '🔗' : '📥'}
+                      </div>
+                      <div>
+                        <div className="text-[16px] font-display font-black text-[var(--text-primary)] leading-none mb-1.5">{tx.description}</div>
+                        <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-widest font-black opacity-60">
+                          {new Date(tx.timestamp).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
-                      <div className={`text-sm font-mono-num font-semibold ${tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
-                        {tx.type === 'send' ? '−' : '+'}
-                        {formatCurrency(tx.amount, tx.currency as any)}
-                      </div>
-                    </Card>
-                  </motion.div>
+                    </div>
+                    <div className={`text-[17px] font-mono-num font-black ${tx.type === 'bill' || tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
+                      {tx.type === 'bill' || tx.type === 'send' ? '−' : '+'}
+                      {formatCurrency(tx.amount, tx.currency as any)}
+                    </div>
+                  </Card>
                 ))}
               </div>
-            )}
-
-            {transactions.length > 0 && (
-              <Button variant="ghost" size="md" onClick={onViewAllTransactions} className="w-full">
-                View All Transactions →
-              </Button>
             )}
           </motion.div>
         </motion.div>
       </div>
+
+      {/* User Guide Modal */}
+      <AnimatePresence>
+        {showGuide && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="glass-strong w-full max-w-sm rounded-[48px] p-8 border-white/10 space-y-6"
+            >
+              <div className="flex justify-between items-start">
+                <div className="w-16 h-16 rounded-3xl accent-gradient flex items-center justify-center text-black">
+                  <Info size={32} />
+                </div>
+                <button onClick={() => setShowGuide(false)} className="p-2 rounded-xl glass border-white/5 text-[var(--text-secondary)]">✕</button>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-display font-black">SwiftyOS Guide</h3>
+                <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed">
+                  Welcome to the future of African finance. Here's how to navigate your new OS:
+                </p>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { icon: '🔗', title: 'Swifty Links', desc: 'Send money to any Telegram user via a simple link.' },
+                  { icon: '⚡', title: 'Instant Bills', desc: 'Pay utilities and buy data with zero fees.' },
+                  { icon: '🔄', title: 'Smart Swap', desc: 'Convert between NGN, USD, and USDT instantly.' },
+                  { icon: '🛡️', title: 'Escrow', desc: 'Your funds are always safe until the link is claimed.' }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4 items-start">
+                    <div className="text-xl">{item.icon}</div>
+                    <div>
+                      <div className="text-[13px] font-display font-extrabold">{item.title}</div>
+                      <div className="text-[11px] text-[var(--text-muted)]">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button size="lg" className="w-full rounded-[24px]" onClick={() => setShowGuide(false)}>Got it!</Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

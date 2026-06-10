@@ -57,9 +57,9 @@ export const walletAPI = {
     return {
       status: 'success',
       data: {
-        NGN_USDT: data.rates?.usdt_ngn || 1348,
-        NGN_USD: 1400, // Still mock until USD logic is added
-        USD_USDT: 1.02
+        NGN_USDT: data.rates?.usdt_ngn || 0,
+        NGN_USD: data.rates?.usd_ngn || 0,
+        USD_USDT: 1.0 // Reference
       }
     };
   },
@@ -104,13 +104,15 @@ export const savingsAPI = {
 
 export const transactionsAPI = {
   list: async (filters?: any) => {
-    // Note: Backend endpoint for transactions still needs implementation in feature phase
+    // Backend endpoint for transactions still needs implementation in feature phase
+    // Returning empty array for now to avoid mock data display
     return {
       status: 'success',
       data: [] as Transaction[]
     };
   },
   getDetail: async (txId: string) => {
-    return { status: 'success', data: { id: txId, amount: 5000, currency: 'NGN', description: 'MTN Data Purchase' } };
+    // This will be called when clicking a specific transaction
+    return { status: 'success', data: null };
   },
 };
