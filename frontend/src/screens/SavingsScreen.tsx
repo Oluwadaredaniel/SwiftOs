@@ -165,15 +165,17 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 group hover:border-[var(--success)]/30 transition-all cursor-pointer">
                 <div className="space-y-0.5">
                    <div className="text-[13px] font-display font-black">Round-ups</div>
                    <div className="text-[10px] text-[var(--text-muted)]">Save change from bills</div>
                 </div>
-                <span className="text-[10px] font-display font-black text-[var(--success)] uppercase tracking-[0.2em] bg-[var(--success)]/10 px-3 py-1.5 rounded-xl border border-[var(--success)]/20">Active</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-display font-black text-[var(--success)] uppercase tracking-[0.2em] bg-[var(--success)]/10 px-3 py-1.5 rounded-xl border border-[var(--success)]/20">Active</span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 opacity-40">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 opacity-40 grayscale group hover:opacity-100 hover:grayscale-0 transition-all cursor-pointer">
                 <div className="space-y-0.5">
                    <div className="text-[13px] font-display font-black">Smart Recurring</div>
                    <div className="text-[10px] text-[var(--text-muted)]">Weekly USDT deposits</div>
@@ -181,6 +183,19 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
                 <span className="text-[10px] font-display font-black text-[var(--text-muted)] uppercase tracking-[0.2em] bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">Paused</span>
               </div>
             </div>
+          </div>
+
+          {/* Educational Insight */}
+          <div className="px-2 py-4">
+             <div className="glass p-5 rounded-[32px] border-dashed border-white/10 flex gap-4 items-start">
+               <div className="text-2xl pt-1">🛡️</div>
+               <div className="space-y-1">
+                 <div className="text-[13px] font-display font-bold text-[var(--text-primary)]">Inflation Shield</div>
+                 <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                   Your savings are stored in USDT (Digital Dollars). This means your wealth doesn't lose value even if the Naira fluctuates.
+                 </p>
+               </div>
+             </div>
           </div>
         </div>
       </div>

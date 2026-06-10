@@ -73,22 +73,25 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
           {/* Quick Categories */}
           <div className="grid grid-cols-4 gap-3">
              {[
-               { icon: Smartphone, label: 'Airtime', color: '#00D9FF' },
-               { icon: Globe, label: 'Data', color: '#00FF9D' },
-               { icon: Tv, label: 'Cable', color: '#FFB347' },
-               { icon: Zap, label: 'Power', color: '#FF3B6B' }
+               { icon: Smartphone, label: 'Airtime', color: 'var(--accent)', glow: 'rgba(0, 217, 255, 0.3)' },
+               { icon: Globe, label: 'Data', color: 'var(--success)', glow: 'rgba(0, 255, 157, 0.2)' },
+               { icon: Tv, label: 'Cable', color: 'var(--warning)', glow: 'rgba(255, 179, 71, 0.2)' },
+               { icon: Zap, label: 'Power', color: 'var(--danger)', glow: 'rgba(255, 59, 107, 0.2)' }
              ].map((cat, i) => (
                <motion.button
                  key={i}
-                 whileHover={{ y: -3 }}
+                 whileHover={{ y: -5 }}
                  whileTap={{ scale: 0.9 }}
                  onClick={onAddBillClick}
-                 className="flex flex-col items-center gap-2.5"
+                 className="flex flex-col items-center gap-3 group"
                >
-                 <div className="w-14 h-14 rounded-[20px] glass flex items-center justify-center border-white/5 bg-white/[0.02] shadow-sm">
-                   <cat.icon size={22} style={{ color: cat.color }} />
+                 <div
+                   className="w-16 h-16 rounded-[24px] glass flex items-center justify-center border-white/5 bg-white/[0.02] transition-all group-hover:bg-white/10 group-hover:border-white/20 shadow-lg"
+                   style={{ boxShadow: `0 10px 30px -5px ${cat.glow}` }}
+                 >
+                   <cat.icon size={26} style={{ color: cat.color }} />
                  </div>
-                 <span className="text-[10px] font-display font-black text-[var(--text-secondary)] uppercase tracking-wider">{cat.label}</span>
+                 <span className="text-[11px] font-display font-black text-[var(--text-secondary)] uppercase tracking-[0.1em] group-hover:text-[var(--text-primary)] transition-colors">{cat.label}</span>
                </motion.button>
              ))}
           </div>
