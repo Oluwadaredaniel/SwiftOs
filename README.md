@@ -1,49 +1,56 @@
-# SwiftyOS 💜 🚀
-### Run your financial life from Telegram.
+# SwiftyOS Backend 🚀
 
-SwiftyOS is a Telegram Mini App that transforms crypto into invisible financial infrastructure for African users. It enables instant bill payments, social transfers, automated savings, and multi-currency management—all powered by the SwiftyEx engine.
+SwiftyOS is a Telegram Mini App that allows African users to run their financial life directly from Telegram.
+
+## Features
+- **Wallet Management**: Hold USDT and NGN balances.
+- **Transfers**: Send and receive money between users.
+- **Payment Links**: Create and claim payment links.
+- **Split Pay**: Split bills among friends.
+- **AutoBills**: Automate recurring payments (Airtime, Data, Electricity) using `node-cron`.
+- **AI Assistant**: Natural language financial assistance powered by Groq API.
+- **Telegram Auth**: Secure login via Telegram Mini App.
+
+## Tech Stack
+- **Node.js & Express.js**
+- **MongoDB & Mongoose**
+- **Groq SDK** (AI)
+- **Node Cron** (Scheduling)
+- **Swagger** (API Documentation)
+
+## Setup
+
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file from the example:
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_uri
+   GROQ_API_KEY=your_groq_api_key
+   TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+   JWT_SECRET=your_jwt_secret
+   SERVER_URL=https://your-app.onrender.com
+   ```
+4. Start the server:
+   ```bash
+   npm start
+   ```
+
+## API Documentation
+Once the server is running, visit `/api-docs` to view the interactive Swagger documentation.
+
+## Demo Mode
+Use the `POST /api/dev/fund` endpoint to add fake USDT to your wallet for testing purposes.
+
+## Deployment
+This backend is ready to be deployed to **Render**.
+- Connect your GitHub repository.
+- Set the Build Command: `npm install`
+- Set the Start Command: `npm start`
+- Add environment variables in the Render dashboard.
 
 ---
-
-## 🌟 Core Modules
-- **💼 Triple-Wallet System:** Manage NGN, USD (Virtual), and USDT (Crypto) in one unified dashboard.
-- **📱 AutoBills:** Instant Airtime, Data, and TV (DSTV/GOTV/Startimes) payments with automated recurring scheduling.
-- **🔗 Swifty Links:** Social social finance—send money to any Telegram user via a simple claim link.
-- **💰 Savings & Automation:** Passive wealth building with "Round-ups" (save the change) and automated deposits in USDT.
-
----
-
-## 📂 Project Documentation
-We have structured our documentation to make it easy for judges and developers to follow:
-
-### 🏆 For Judges
-- **[PRODUCT_SPECIFICATION.md](./PRODUCT_SPECIFICATION.md):** The high-level vision, strategic advantages, and feature deep-dives.
-- **[ARCHITECTURE.md](./Architecture.md):** System design diagrams, database schema, and API flows.
-
-### 🛠 For Developers
-- **[IMPLEMENTATION_LOGIC.md](./IMPLEMENTATION_LOGIC.md):** The "Brain"—Auto-conversion math, spread logic, and atomic transaction workflows.
-- **[API_INTEGRATION.md](./API_INTEGRATION.md):** Technical details for SwiftyEx and VTpass integrations.
-- **[FRONTEND_INSTRUCTIONS.md](./FRONTEND_INSTRUCTIONS.md):** Detailed UI requirements and screen-by-screen functionality.
-- **[BACKEND_INSTRUCTIONS.md](./BACKEND_INSTRUCTIONS.md):** Infrastructure responsibilities and security requirements.
-- **[UI_SCREENS.md](./UI_SCREENS.md):** Visual mockups and design system definitions.
-- **[COMPONENTS.md](./Components.md):** React component library and hierarchy.
-
----
-
-## 🚀 Tech Stack
-- **Frontend:** Next.js, Tailwind CSS, Framer Motion, Telegram Mini App SDK.
-- **Backend:** Node.js, Express, Prisma ORM.
-- **Database:** SQLite (Hackathon MVP) / PostgreSQL.
-- **Bot Framework:** grammY.
-- **APIs:** SwiftyEx (Wallets/Swap), VTpass (Utility).
-
----
-
-## 🛡 Security & Reliability
-- **HMAC Validation:** Every request is signed and verified via Telegram's secure initData.
-- **Atomic Transactions:** "Debit -> Execute -> Finalize" flow to ensure user funds are always safe.
-- **Stablecoin Shield:** Savings held in USDT to protect users from Naira inflation.
-
----
-
-**Built with 💜 for the SwiftyEx HackFest Osun 2026.**
+Built for the Hackathon with ❤️ by Gemini CLI.

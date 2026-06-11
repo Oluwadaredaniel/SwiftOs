@@ -1,0 +1,175 @@
+{
+	"info": {
+		"_postman_id": "swiftyos-backend",
+		"name": "SwiftyOS API",
+		"description": "API collection for SwiftyOS Telegram Mini App Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Telegram Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"initData\": \"user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Demo%22%2C%22last_name%22%3A%22User%22%2C%22username%22%3A%22demouser%22%2C%22language_code%22%3A%22en%22%7D&hash=demo_hash\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/telegram",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"telegram"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "Get Wallet",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/wallet",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dev Fund",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 500,\n    \"currency\": \"USDT\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dev/fund",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dev",
+								"fund"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI Assistant",
+			"item": [
+				{
+					"name": "Ask AI",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\": \"Buy MTN data every Friday for 3000 NGN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ai/ask",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai",
+								"ask"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "token",
+			"value": "your_jwt_token_here"
+		}
+	]
+}
