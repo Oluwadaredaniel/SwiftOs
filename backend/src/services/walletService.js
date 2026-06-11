@@ -1,5 +1,6 @@
 import Wallet from '../models/Wallet.js';
 import Transaction from '../models/Transaction.js';
+import rateService from './rateService.js';
 
 class WalletService {
   async getWallet(userId) {
@@ -28,7 +29,7 @@ class WalletService {
 
   async transfer(fromUserId, toUserId, amount, currency, description) {
     const fromWallet = await this.getWallet(fromUserId);
-    
+
     if (fromWallet.balances[currency] < amount) {
       throw new Error('Insufficient balance');
     }
@@ -63,8 +64,42 @@ class WalletService {
     return { fromWallet };
   }
 
-  async getHistory(userId) {
-    return Transaction.find({ userId }).sort({ createdAt: -1 });
+  async convertCurrency(userId, fromCurrency, toCurrency, amount) {
+    const wallet = await this.getWallet(userId);
+
+    if (wallet.balances[fromCurrency] < amount) throw new Error('Insufficient balance');
+
+    let converted, rate;
+
+    if (fromCurrency === 'USDT' && toCurrency === 'NGN') {
+      const result = await rateService.usdtToNgn(amount);
+      converted = result.ngn;
+      rate = result.rate;
+    } else if (fromCurrency === 'NGN' && toCurrency === 'USDT') {
+      const result = await rateService.ngnToUsdt(amount);
+      converted = result.usdt;
+      rate = result.rate;
+    } else {
+      throw new Error('Unsupported conversion pair');
+    }
+
+    wallet.balances[fromCurrency] -= amount;
+    wallet.balances[toCurrency] += converted;
+    await wallet.save();
+
+    await Transaction.create({
+      userId,
+      type: 'convert',
+      amount,
+      currency: fromCurrency,
+      description: `Converted ${amount} ${fromCurrency} → ${converted} ${toCurrency} @ ${rate}`,
+    });
+
+    return { wallet, converted, rate };
+  }
+
+  async getHistory(userId, limit = 20) {
+    return Transaction.find({ userId }).sort({ createdAt: -1 }).limit(limit);
   }
 }
 

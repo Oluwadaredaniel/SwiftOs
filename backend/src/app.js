@@ -13,6 +13,9 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import splitRoutes from './routes/splitRoutes.js';
 import autobillRoutes from './routes/autobillRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import savingsRoutes from './routes/savingsRoutes.js';
+import billRoutes from './routes/billRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 import cronService from './services/cronService.js';
 
 dotenv.config();
@@ -38,6 +41,10 @@ app.use('/api/payment-links', paymentRoutes);
 app.use('/api/splitpay', splitRoutes);
 app.use('/api/autobills', autobillRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/savings', savingsRoutes);
+app.use('/api/bills', billRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/links', paymentRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -65,7 +72,7 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

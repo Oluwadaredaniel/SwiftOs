@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+router.get('/list', paymentController.listLinks);
 router.post('/', paymentController.createLink);
 router.post('/:token/claim', paymentController.claimLink);
 

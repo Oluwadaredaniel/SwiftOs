@@ -2,8 +2,12 @@ import AutoBill from '../models/AutoBill.js';
 
 export const createAutoBill = async (req, res) => {
   try {
-    const { type, provider, amount, currency, frequency } = req.body;
-    
+    const { type, provider, amount, currency, frequency, billersCode, variationCode } = req.body;
+
+    if (!billersCode) {
+      return res.status(400).json({ message: 'billersCode is required (phone number or meter number)' });
+    }
+
     let nextDue = new Date();
     if (frequency === 'daily') nextDue.setDate(nextDue.getDate() + 1);
     else if (frequency === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
@@ -16,9 +20,11 @@ export const createAutoBill = async (req, res) => {
       amount,
       currency,
       frequency,
+      billersCode,
+      variationCode,
       nextDue,
     });
-    
+
     res.json(bill);
   } catch (error) {
     res.status(500).json({ message: error.message });

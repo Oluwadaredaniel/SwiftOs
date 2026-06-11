@@ -6,8 +6,9 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-router.get('/', walletController.getWallet);
+router.get('/balances', walletController.getBalances);
 router.post('/transfer', walletController.transfer);
-router.get('/history', walletController.getHistory);
+router.post('/fund', walletController.fundWallet);
+router.post('/convert', walletController.convertCurrency);
 
 export default router;
