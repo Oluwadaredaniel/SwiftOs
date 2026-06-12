@@ -17,36 +17,30 @@ export const Button = ({
   className,
   ...props
 }: ButtonProps) => {
-  const baseStyles =
-    'font-display font-bold rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden';
+  const base = 'font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 flex-shrink-0';
 
   const variants = {
-    primary:
-      'accent-gradient text-black shadow-lg hover:shadow-[0_0_24px_var(--accent-glow)] border-0',
-    secondary:
-      'glass text-[var(--text-primary)] border-white/5 shadow-md hover:bg-white/5 active:bg-white/10',
-    ghost:
-      'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)]/10',
-    danger:
-      'text-white shadow-lg bg-gradient-to-tr from-[var(--danger)] to-[#FF7E9F] border-0',
+    primary:   'accent-gradient text-black border-0 shadow-[0_2px_12px_rgba(0,200,240,0.2)]',
+    secondary: 'bg-[var(--surface-2)] text-[var(--text-primary)] border border-[var(--border)] hover:border-[var(--border-strong)]',
+    ghost:     'bg-transparent text-[var(--accent)] hover:bg-[var(--accent-dim)]',
+    danger:    'bg-[var(--danger)]/10 text-[var(--danger)] border border-[var(--danger)]/25 hover:bg-[var(--danger)]/20',
   };
 
   const sizes = {
-    sm: 'px-4 py-2 text-[13px]',
-    md: 'px-6 py-3 text-[14px]',
-    lg: 'px-8 py-4 text-[16px] min-h-[56px]',
+    sm: 'px-3.5 py-2 text-[13px] h-9',
+    md: 'px-5 py-2.5 text-[14px] h-10',
+    lg: 'px-6 py-3 text-[15px] h-12',
   };
 
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className || ''}`}
+      className={`${base} ${variants[variant]} ${sizes[size]} ${className || ''}`}
       disabled={disabled || isLoading}
       {...props}
     >
       {isLoading ? (
-        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }}>
+        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity }}>
           ···
         </motion.span>
       ) : (

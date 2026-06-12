@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Only available outside production
 router.post('/fund', (req, res, next) => {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && !process.env.DEMO_MODE) {
     return res.status(404).json({ message: 'Not found' });
   }
   next();

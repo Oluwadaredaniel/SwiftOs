@@ -2,7 +2,6 @@
 
 import { Settings } from 'lucide-react';
 import { useTelegram } from '@/hooks/useTelegram';
-import { motion } from 'framer-motion';
 
 interface HeaderProps {
   onSettingsClick?: () => void;
@@ -13,42 +12,35 @@ export const Header = ({ onSettingsClick, showSettings = true }: HeaderProps) =>
   const { user } = useTelegram();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="sticky top-0 z-30 px-6 py-6 flex items-center justify-between bg-transparent pointer-events-none"
-    >
-      <div className="flex items-center gap-3 pointer-events-auto">
+    <div className="flex-shrink-0 px-4 pt-4 pb-3 flex items-center justify-between">
+      <div className="flex items-center gap-3">
         {user?.photo_url ? (
-          <motion.img
-            whileHover={{ scale: 1.05 }}
+          <img
             src={user.photo_url}
             alt={user.first_name}
-            className="w-11 h-11 rounded-[14px] border-2 border-white/10 shadow-xl"
+            className="w-9 h-9 rounded-full border border-[var(--border-strong)] object-cover flex-shrink-0"
           />
         ) : (
-          <div className="w-11 h-11 rounded-[14px] glass flex items-center justify-center text-[var(--accent)] font-display font-extrabold text-lg border-2 border-[var(--accent)]/30">
+          <div className="w-9 h-9 rounded-full bg-[var(--surface-2)] border border-[var(--border-strong)] flex items-center justify-center text-[var(--accent)] font-semibold text-sm flex-shrink-0">
             {(user?.first_name || 'S').charAt(0).toUpperCase()}
           </div>
         )}
-        <div className="flex flex-col">
-          <div className="text-[11px] font-display uppercase tracking-[0.2em] text-[var(--text-secondary)] opacity-80 leading-none mb-1">SwiftyOS</div>
-          <div className="text-[15px] text-[var(--text-primary)] font-display font-extrabold leading-none">
-            {user?.first_name ? user.first_name : 'Dashboard'}
-          </div>
+        <div>
+          <p className="text-[11px] text-[var(--text-muted)] font-medium leading-none mb-0.5">SwiftyOS</p>
+          <p className="text-[15px] font-semibold text-[var(--text-primary)] leading-none">
+            {user?.first_name || 'Dashboard'}
+          </p>
         </div>
       </div>
 
       {showSettings && (
-        <motion.button
-          whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.08)' }}
-          whileTap={{ scale: 0.95 }}
+        <button
           onClick={onSettingsClick}
-          className="p-3 rounded-2xl glass text-[var(--text-primary)] pointer-events-auto border-white/5 shadow-lg"
+          className="w-9 h-9 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex-shrink-0"
         >
-          <Settings size={20} className="opacity-80" />
-        </motion.button>
+          <Settings size={17} />
+        </button>
       )}
-    </motion.div>
+    </div>
   );
 };

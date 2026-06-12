@@ -15,16 +15,21 @@ interface BillsScreenProps {
   onSettingsClick: () => void;
 }
 
+const CATEGORIES = [
+  { icon: Smartphone, label: 'Airtime', color: 'var(--accent)' },
+  { icon: Globe,      label: 'Data',    color: 'var(--success)' },
+  { icon: Tv,         label: 'Cable',   color: 'var(--warning)' },
+  { icon: Zap,        label: 'Power',   color: 'var(--danger)' },
+];
+
 export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProps) => {
-  const bills = useStore((state) => state.bills);
-  const setBills = useStore((state) => state.setBills);
-  const loading = useStore((state) => state.loading);
+  const bills = useStore((s) => s.bills);
+  const setBills = useStore((s) => s.setBills);
+  const loading = useStore((s) => s.loading);
   const [payLoading, setPayLoading] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadBills();
-  }, []);
+  useEffect(() => { loadBills(); }, []);
 
   const loadBills = async () => {
     try {
@@ -39,12 +44,7 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
     if (!bill.serviceID || !bill.billersCode || payLoading) return;
     setPayLoading(bill.id);
     try {
-      await billsAPI.payBill({
-        serviceID: bill.serviceID,
-        amount: bill.amount,
-        phone: bill.billersCode,
-        variation_code: bill.variationCode,
-      });
+      await billsAPI.payBill({ serviceID: bill.serviceID, amount: bill.amount, phone: bill.billersCode, variation_code: bill.variationCode });
       await loadBills();
     } catch (err) {
       console.error('Pay bill failed:', err);
@@ -67,131 +67,123 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
   };
 
   const upcomingBills = bills?.filter((b) => b.status === 'active') || [];
+  const monthlyOutflow = upcomingBills.reduce((sum, b) => {
+    const mult: Record<string, number> = { once: 0, weekly: 4, monthly: 1, biweekly: 2 };
+    return sum + b.amount * (mult[b.frequency] ?? 1);
+  }, 0);
 
   return (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-32 px-6 pt-2 custom-scrollbar">
-        <div className="space-y-10">
+      <div className="flex-1 overflow-y-auto pb-28 px-4 pt-2 custom-scrollbar space-y-5">
 
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass-strong relative overflow-hidden rounded-[48px] p-8 text-[var(--text-primary)] border-white/10"
-          >
-            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[var(--accent)]/10 blur-[80px]" />
-            <div className="relative flex justify-between items-center">
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3">Monthly Outflow</div>
-                <div className="text-4xl font-mono-num font-bold text-gradient leading-none tracking-tight">
-                  ₦{upcomingBills.reduce((sum, b) => {
-                    const mult: Record<string, number> = { once: 0, weekly: 4, monthly: 1, biweekly: 2 };
-                    return sum + b.amount * (mult[b.frequency] ?? 1);
-                  }, 0).toLocaleString()}
-                </div>
-              </div>
-              <div className="w-14 h-14 rounded-[20px] glass flex items-center justify-center text-[var(--accent)] shadow-2xl">
-                <TrendingUp size={28} />
-              </div>
+        {/* Summary Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl mb-1"
+          style={{
+            background: 'linear-gradient(145deg, #1a1b23 0%, #1e1f28 60%, #1a1b24 100%)',
+            border: '1px solid rgba(255,255,255,0.09)',
+            boxShadow: '0 2px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/40 to-transparent" />
+          <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)' }} />
+          <div className="px-5 py-5 relative">
+            <p className="text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-widest mb-2.5">Monthly Outflow</p>
+            <p className="text-[36px] font-mono-num font-bold text-[var(--text-primary)] leading-none">
+              ₦{monthlyOutflow.toLocaleString()}
+            </p>
+            <div className="flex items-center gap-1.5 mt-4 pt-4 border-t border-[var(--border)]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--warning)]" style={{ boxShadow: '0 0 6px rgba(245,158,11,0.8)' }} />
+              <p className="text-[11px] text-[var(--text-muted)]">{upcomingBills.length} active bill{upcomingBills.length !== 1 ? 's' : ''} scheduled</p>
             </div>
-          </motion.div>
-
-          {/* Quick Categories */}
-          <div className="grid grid-cols-4 gap-3">
-             {[
-               { icon: Smartphone, label: 'Airtime', color: 'var(--accent)', glow: 'rgba(0, 217, 255, 0.3)' },
-               { icon: Globe, label: 'Data', color: 'var(--success)', glow: 'rgba(0, 255, 157, 0.2)' },
-               { icon: Tv, label: 'Cable', color: 'var(--warning)', glow: 'rgba(255, 179, 71, 0.2)' },
-               { icon: Zap, label: 'Power', color: 'var(--danger)', glow: 'rgba(255, 59, 107, 0.2)' }
-             ].map((cat, i) => (
-               <motion.button
-                 key={i}
-                 whileHover={{ y: -5 }}
-                 whileTap={{ scale: 0.9 }}
-                 onClick={onAddBillClick}
-                 className="flex flex-col items-center gap-3 group"
-               >
-                 <div
-                   className="w-16 h-16 rounded-[24px] glass flex items-center justify-center border-white/5 bg-white/[0.02] transition-all group-hover:bg-white/10 group-hover:border-white/20 shadow-lg"
-                   style={{ boxShadow: `0 10px 30px -5px ${cat.glow}` }}
-                 >
-                   <cat.icon size={26} style={{ color: cat.color }} />
-                 </div>
-                 <span className="text-[11px] font-display font-black text-[var(--text-secondary)] uppercase tracking-[0.1em] group-hover:text-[var(--text-primary)] transition-colors">{cat.label}</span>
-               </motion.button>
-             ))}
           </div>
+        </motion.div>
 
-          <div className="space-y-5">
-            <div className="px-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">Scheduled Payments</span>
-            </div>
-
-            {loading ? (
-              <div className="space-y-3">
-                <Skeleton className="h-24 w-full rounded-[32px]" />
-              </div>
-            ) : upcomingBills.length === 0 ? (
-              <Card className="py-24 text-center border-dashed border-white/5 bg-transparent rounded-[40px]">
-                <div className="w-16 h-16 rounded-[24px] glass flex items-center justify-center mx-auto mb-5 shadow-2xl">
-                  <FileText size={24} className="text-[var(--text-muted)] opacity-30" />
+        {/* Quick Add Categories */}
+        <div className="space-y-2.5">
+          <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider px-1">Quick Add</p>
+          <div className="grid grid-cols-4 gap-2.5">
+            {CATEGORIES.map(({ icon: Icon, label, color }) => (
+              <button
+                key={label}
+                onClick={onAddBillClick}
+                className="flex flex-col items-center gap-2 py-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] active:opacity-70 transition-opacity"
+              >
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: `color-mix(in srgb, ${color} 12%, transparent)` }}
+                >
+                  <Icon size={18} style={{ color }} />
                 </div>
-                <p className="text-[15px] text-[var(--text-secondary)] font-display font-bold">Zero scheduled bills</p>
-                <p className="text-[11px] text-[var(--text-muted)] opacity-50 mt-1 uppercase tracking-[0.15em]">Automate your bills to save time</p>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {upcomingBills.map((bill, idx) => (
-                  <motion.div key={bill.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }}>
-                    <Card className="flex items-center justify-between py-6 px-7 rounded-[32px] border-white/5 bg-white/[0.01] hover:bg-white/[0.04]">
-                      <div className="flex-1">
-                        <div className="text-[16px] font-display font-black text-[var(--text-primary)] leading-none mb-1.5">{bill.name}</div>
-                        <div className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-2">
-                          <CheckCircle2 size={12} className="text-[var(--success)]" />
-                          {bill.frequency} • Next: {new Date(bill.dueDate).toLocaleDateString()}
-                        </div>
-                      </div>
-                      <div className="text-right flex flex-col items-end gap-2">
-                        <div className="text-[17px] font-mono-num font-black text-[var(--text-primary)] leading-none">{formatCurrency(bill.amount, 'NGN')}</div>
-                        <div className="flex items-center gap-2">
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handlePayBill(bill)}
-                            disabled={!bill.serviceID || !bill.billersCode || payLoading === bill.id}
-                            className="h-8 px-5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-display font-black uppercase tracking-widest border border-[var(--accent)]/20 hover:bg-[var(--accent)] hover:text-black transition-colors disabled:opacity-40"
-                          >
-                            {payLoading === bill.id ? <Loader2 size={12} className="animate-spin" /> : 'Pay'}
-                          </motion.button>
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleDeleteBill(bill.id)}
-                            disabled={deleteLoading === bill.id}
-                            className="h-8 w-8 rounded-full bg-[var(--danger)]/10 text-[var(--danger)] flex items-center justify-center border border-[var(--danger)]/20 hover:bg-[var(--danger)]/20 transition-colors disabled:opacity-40"
-                          >
-                            {deleteLoading === bill.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
-                          </motion.button>
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+                <span className="text-[11px] font-medium text-[var(--text-secondary)]">{label}</span>
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Scheduled Bills */}
+        <div className="space-y-2.5">
+          <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider px-1">Scheduled Payments</p>
+
+          {loading ? (
+            <Skeleton className="h-[72px] w-full" />
+          ) : upcomingBills.length === 0 ? (
+            <div className="py-12 text-center bg-[var(--surface)] border border-[var(--border)] border-dashed rounded-xl">
+              <FileText size={24} className="mx-auto mb-3 text-[var(--text-muted)] opacity-40" />
+              <p className="text-sm text-[var(--text-secondary)] font-medium">No scheduled bills</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">Automate your bills to save time</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {upcomingBills.map((bill) => (
+                <div key={bill.id} className="flex items-center justify-between p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-[var(--text-primary)] truncate">{bill.name}</p>
+                    <p className="text-[11px] text-[var(--text-muted)] mt-0.5 flex items-center gap-1.5">
+                      <CheckCircle2 size={10} className="text-[var(--success)]" />
+                      {bill.frequency} · Due {new Date(bill.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 ml-3">
+                    <p className="text-[14px] font-mono-num font-semibold text-[var(--text-primary)]">
+                      {formatCurrency(bill.amount, 'NGN')}
+                    </p>
+                    <button
+                      onClick={() => handlePayBill(bill)}
+                      disabled={!bill.serviceID || !bill.billersCode || payLoading === bill.id}
+                      className="h-8 px-3 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] text-[11px] font-semibold border border-[var(--accent)]/20 disabled:opacity-40"
+                    >
+                      {payLoading === bill.id ? <Loader2 size={11} className="animate-spin" /> : 'Pay'}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteBill(bill.id)}
+                      disabled={deleteLoading === bill.id}
+                      className="h-8 w-8 rounded-lg bg-[var(--danger)]/10 text-[var(--danger)] flex items-center justify-center border border-[var(--danger)]/20 disabled:opacity-40"
+                    >
+                      {deleteLoading === bill.id ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={12} />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
 
-      <div className="fixed bottom-32 right-6">
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={onAddBillClick}
-          className="rounded-[28px] w-18 h-18 flex items-center justify-center shadow-[0_20px_50px_rgba(0,217,255,0.4)] accent-gradient border-0"
-        >
-          <Plus size={32} className="text-black" />
-        </motion.button>
-      </div>
+      {/* FAB */}
+      <motion.button
+        whileTap={{ scale: 0.94 }}
+        onClick={onAddBillClick}
+        style={{ bottom: 'max(5.5rem, calc(env(safe-area-inset-bottom) + 5rem))' }}
+        className="fixed right-4 w-14 h-14 rounded-2xl accent-gradient flex items-center justify-center shadow-[0_4px_20px_rgba(0,200,240,0.35)] z-30"
+      >
+        <Plus size={24} className="text-black" />
+      </motion.button>
     </div>
   );
 };

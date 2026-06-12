@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Bot, Zap, ArrowRightLeft, Users, LayoutGrid } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
-import { aiAPI, autobillsAPI, walletAPI } from '@/lib/api';
+import { autobillsAPI, walletAPI } from '@/lib/api';
+
+const aiAPI = { ask: async (_text: string) => { throw new Error('AI feature removed'); } };
 import { useStore } from '@/store/useStore';
 import { formatCurrency } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -68,7 +70,7 @@ export const AIScreen = ({ onSettingsClick }: AIScreenProps) => {
     setLoading(true);
 
     try {
-      const result = await aiAPI.ask(text.trim());
+      const result = await aiAPI.ask(text.trim()) as any;
       const description = ACTION_DESCRIPTIONS[result.action]?.(result) ?? JSON.stringify(result);
       const assistantMsg: Message = {
         id: msgId.current++,

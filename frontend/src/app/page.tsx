@@ -8,7 +8,6 @@ import { LinksScreen } from '@/screens/LinksScreen';
 import { SavingsScreen } from '@/screens/SavingsScreen';
 import { HistoryScreen } from '@/screens/HistoryScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
-import { AIScreen } from '@/screens/AIScreen';
 import { TabNav } from '@/components/layout/TabNav';
 import {
   SendModal,
@@ -46,12 +45,6 @@ function AppContent() {
       case 'history':
         return (
           <HistoryScreen
-            onSettingsClick={() => setShowSettings(true)}
-          />
-        );
-      case 'ai':
-        return (
-          <AIScreen
             onSettingsClick={() => setShowSettings(true)}
           />
         );
