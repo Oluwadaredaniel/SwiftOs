@@ -27,15 +27,26 @@ export const listLinks = async (req, res) => {
 export const createLink = async (req, res) => {
   try {
     const { amount, currency, note } = req.body;
+
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'amount must be a positive number' });
+    }
+    if (!['NGN', 'USDT'].includes(currency)) {
+      return res.status(400).json({ status: 'error', message: 'currency must be NGN or USDT' });
+    }
+    if (note && note.length > 200) {
+      return res.status(400).json({ status: 'error', message: 'note must be 200 characters or less' });
+    }
+
     const token = crypto.randomBytes(16).toString('hex');
 
     const link = await PaymentLink.create({
       creatorId: req.user._id,
-      amount,
+      amount: Number(amount),
       currency,
       token,
-      note,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h expiry per spec
+      note: note ? note.trim() : undefined,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
     res.json({ status: 'success', data: link });

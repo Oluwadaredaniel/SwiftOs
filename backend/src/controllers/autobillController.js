@@ -4,6 +4,18 @@ export const createAutoBill = async (req, res) => {
   try {
     const { type, provider, amount, currency, frequency, billersCode, variationCode } = req.body;
 
+    if (!type || !['Airtime', 'Data', 'Electricity'].includes(type)) {
+      return res.status(400).json({ message: 'type must be Airtime, Data, or Electricity' });
+    }
+    if (!provider || typeof provider !== 'string') {
+      return res.status(400).json({ message: 'provider is required' });
+    }
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ message: 'amount must be a positive number' });
+    }
+    if (!frequency || !['daily', 'weekly', 'monthly'].includes(frequency)) {
+      return res.status(400).json({ message: 'frequency must be daily, weekly, or monthly' });
+    }
     if (!billersCode) {
       return res.status(400).json({ message: 'billersCode is required (phone number or meter number)' });
     }

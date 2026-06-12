@@ -23,7 +23,14 @@ export const getGoals = async (req, res) => {
 
 export const createGoal = async (req, res) => {
   try {
-    const goal = await savingsService.create(req.user._id, req.body);
+    const { name, targetAmount, currency, category } = req.body;
+    if (!name || typeof name !== 'string' || name.trim().length < 1) {
+      return res.status(400).json({ status: 'error', message: 'name is required' });
+    }
+    if (!targetAmount || isNaN(Number(targetAmount)) || Number(targetAmount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'targetAmount must be a positive number' });
+    }
+    const goal = await savingsService.create(req.user._id, { name: name.trim(), targetAmount: Number(targetAmount), currency, category });
     res.json({ status: 'success', data: goal });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -32,7 +39,11 @@ export const createGoal = async (req, res) => {
 
 export const depositToGoal = async (req, res) => {
   try {
-    const goal = await savingsService.deposit(req.user._id, req.params.id, req.body.amount);
+    const { amount } = req.body;
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'amount must be a positive number' });
+    }
+    const goal = await savingsService.deposit(req.user._id, req.params.id, Number(amount));
     res.json({ status: 'success', data: goal });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
@@ -41,7 +52,11 @@ export const depositToGoal = async (req, res) => {
 
 export const withdrawFromGoal = async (req, res) => {
   try {
-    const goal = await savingsService.withdraw(req.user._id, req.params.id, req.body.amount);
+    const { amount } = req.body;
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'amount must be a positive number' });
+    }
+    const goal = await savingsService.withdraw(req.user._id, req.params.id, Number(amount));
     res.json({ status: 'success', data: goal });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });

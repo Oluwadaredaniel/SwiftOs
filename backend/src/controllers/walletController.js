@@ -49,7 +49,19 @@ export const getBalances = async (req, res) => {
 export const transfer = async (req, res) => {
   try {
     const { toUserId, amount, currency, description } = req.body;
-    const result = await walletService.transfer(req.user._id, toUserId, amount, currency, description);
+
+    if (!toUserId) return res.status(400).json({ status: 'error', message: 'toUserId is required' });
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'amount must be a positive number' });
+    }
+    if (!['NGN', 'USDT'].includes(currency)) {
+      return res.status(400).json({ status: 'error', message: 'currency must be NGN or USDT' });
+    }
+    if (toUserId === String(req.user._id)) {
+      return res.status(400).json({ status: 'error', message: 'Cannot transfer to yourself' });
+    }
+
+    const result = await walletService.transfer(req.user._id, toUserId, Number(amount), currency, description);
     res.json({ status: 'success', data: result });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
@@ -59,7 +71,13 @@ export const transfer = async (req, res) => {
 export const fundWallet = async (req, res) => {
   try {
     const { amount, currency } = req.body;
-    const wallet = await walletService.fundWallet(req.user._id, amount, currency);
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'amount must be a positive number' });
+    }
+    if (!['NGN', 'USDT', 'USD'].includes(currency)) {
+      return res.status(400).json({ status: 'error', message: 'currency must be NGN, USDT, or USD' });
+    }
+    const wallet = await walletService.fundWallet(req.user._id, Number(amount), currency);
     res.json({ status: 'success', data: wallet });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -69,7 +87,17 @@ export const fundWallet = async (req, res) => {
 export const convertCurrency = async (req, res) => {
   try {
     const { from, to, amount } = req.body;
-    const result = await walletService.convertCurrency(req.user._id, from, to, amount);
+    const VALID = ['NGN', 'USDT'];
+    if (!VALID.includes(from) || !VALID.includes(to)) {
+      return res.status(400).json({ status: 'error', message: 'from/to must be NGN or USDT' });
+    }
+    if (from === to) {
+      return res.status(400).json({ status: 'error', message: 'from and to currencies must differ' });
+    }
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ status: 'error', message: 'amount must be a positive number' });
+    }
+    const result = await walletService.convertCurrency(req.user._id, from, to, Number(amount));
     res.json({ status: 'success', data: result });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
