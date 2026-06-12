@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, Zap, Info, HelpCircle } from 'lucide-react';
+import { ArrowUpRight, ArrowRightLeft, Zap, Info, HelpCircle, Send, Download, Copy, Check } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useTelegram } from '@/hooks/useTelegram';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, copyToClipboard } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Card, BalanceCard, Skeleton } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
@@ -12,11 +12,15 @@ import { walletAPI, transactionsAPI } from '@/lib/api';
 import { motion, Variants, AnimatePresence } from 'framer-motion';
 
 export const WalletScreen = ({
+  onSendClick,
+  onReceiveClick,
   onConvertClick,
   onBillsClick,
   onSettingsClick,
   onViewAllTransactions,
 }: {
+  onSendClick: () => void;
+  onReceiveClick: () => void;
   onConvertClick: () => void;
   onBillsClick: () => void;
   onSettingsClick: () => void;
@@ -29,6 +33,14 @@ export const WalletScreen = ({
   const setBalances = useStore((state) => state.setBalances);
   const setTransactions = useStore((state) => state.setTransactions);
   const [showGuide, setShowGuide] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
+
+  const handleCopyAddress = async () => {
+    if (!balances.usdt_address) return;
+    await copyToClipboard(balances.usdt_address);
+    setCopiedAddress(true);
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
 
   useEffect(() => {
     refreshData();
@@ -84,31 +96,59 @@ export const WalletScreen = ({
             )}
           </motion.div>
 
-          {/* Premium Core Utilities */}
-          <motion.div variants={item} className="grid grid-cols-2 gap-4">
+          {/* Quick Actions */}
+          <motion.div variants={item} className="space-y-3">
+            {/* Send — hero */}
             <motion.button
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleQuickAction(onBillsClick)}
-              className="flex items-center justify-center gap-3 h-[80px] rounded-[32px] accent-gradient text-black font-display font-black shadow-[0_20px_40px_rgba(0,217,255,0.25)] border-0"
+              whileHover={{ scale: 1.01, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handleQuickAction(onSendClick)}
+              className="w-full flex items-center justify-center gap-3 h-[72px] rounded-[28px] accent-gradient text-black font-display font-black shadow-[0_20px_40px_rgba(0,217,255,0.25)] border-0"
             >
-              <div className="w-10 h-10 rounded-2xl bg-black/10 flex items-center justify-center">
-                <Zap size={24} fill="currentColor" />
+              <div className="w-9 h-9 rounded-2xl bg-black/10 flex items-center justify-center">
+                <Send size={20} fill="currentColor" />
               </div>
-              <span className="text-[15px] uppercase tracking-wider">Add Bill</span>
+              <span className="text-[16px] uppercase tracking-wider">Send Money</span>
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleQuickAction(onConvertClick)}
-              className="flex items-center justify-center gap-3 h-[80px] rounded-[32px] glass-strong border-white/10 text-[var(--text-primary)] font-display font-black"
-            >
-              <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-[var(--accent)]">
-                <ArrowRightLeft size={24} />
-              </div>
-              <span className="text-[15px] uppercase tracking-wider">Swap</span>
-            </motion.button>
+            {/* Secondary row */}
+            <div className="grid grid-cols-3 gap-3">
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleQuickAction(onReceiveClick)}
+                className="flex flex-col items-center justify-center gap-2 h-[72px] rounded-[28px] glass-strong border-white/10 text-[var(--text-primary)] font-display font-black"
+              >
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-[var(--success)]">
+                  <Download size={18} />
+                </div>
+                <span className="text-[11px] uppercase tracking-wider">Receive</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleQuickAction(onBillsClick)}
+                className="flex flex-col items-center justify-center gap-2 h-[72px] rounded-[28px] glass-strong border-white/10 text-[var(--text-primary)] font-display font-black"
+              >
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-[var(--accent)]">
+                  <Zap size={18} />
+                </div>
+                <span className="text-[11px] uppercase tracking-wider">Bills</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleQuickAction(onConvertClick)}
+                className="flex flex-col items-center justify-center gap-2 h-[72px] rounded-[28px] glass-strong border-white/10 text-[var(--text-primary)] font-display font-black"
+              >
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-[var(--accent)]">
+                  <ArrowRightLeft size={18} />
+                </div>
+                <span className="text-[11px] uppercase tracking-wider">Swap</span>
+              </motion.button>
+            </div>
           </motion.div>
 
           {/* Detailed Wallet Breakdown */}
@@ -136,6 +176,21 @@ export const WalletScreen = ({
                     variant="success"
                     subtext="Available for social links"
                   />
+                  {balances.usdt_address && (
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleCopyAddress}
+                      className="w-full mt-2 flex items-center justify-between px-5 py-3 glass rounded-[20px] border border-white/5 hover:border-[var(--accent)]/20 transition-all"
+                    >
+                      <span className="text-[11px] font-mono text-[var(--text-muted)] truncate mr-3">
+                        {balances.usdt_address.slice(0, 14)}…{balances.usdt_address.slice(-6)}
+                      </span>
+                      <div className="flex items-center gap-1.5 text-[11px] font-display font-black uppercase tracking-widest text-[var(--accent)] flex-shrink-0">
+                        {copiedAddress ? <Check size={12} /> : <Copy size={12} />}
+                        {copiedAddress ? 'Copied' : 'Copy Addr'}
+                      </div>
+                    </motion.button>
+                  )}
                   <BalanceCard
                     label="US Dollar (Virtual Card)"
                     amount={formatCurrency(balances.usd || 0, 'USD')}

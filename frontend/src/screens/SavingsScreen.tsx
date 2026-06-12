@@ -1,32 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Target, ShieldCheck, Heart, Briefcase, Zap, PlusCircle, Loader2 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { Card, Skeleton, Input } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
 import { formatCurrency } from '@/lib/utils';
 import { savingsAPI } from '@/lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SavingsScreenProps {
   onNewGoalClick: () => void;
   onSettingsClick: () => void;
 }
 
-import { Plus, Target, ShieldCheck, Heart, Briefcase, Zap, ChevronRight } from 'lucide-react';
-import { useStore } from '@/store/useStore';
-import { Button } from '@/components/ui/Button';
-import { Card, Skeleton } from '@/components/ui/Card';
-import { Header } from '@/components/layout/Header';
-import { formatCurrency } from '@/lib/utils';
-import { savingsAPI } from '@/lib/api';
-import { motion, AnimatePresence } from 'framer-motion';
-
 export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreenProps) => {
   const goals = useStore((state) => state.goals);
   const setGoals = useStore((state) => state.setGoals);
   const loading = useStore((state) => state.loading);
+  const [depositGoalId, setDepositGoalId] = useState<string | null>(null);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositLoading, setDepositLoading] = useState(false);
 
   useEffect(() => {
     loadGoals();
@@ -38,6 +33,22 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
       if (res?.data) setGoals(res.data);
     } catch (err) {
       console.error('Failed to load goals:', err);
+    }
+  };
+
+  const handleDeposit = async (goalId: string) => {
+    if (!depositAmount || depositLoading) return;
+    setDepositLoading(true);
+    try {
+      await savingsAPI.deposit(goalId, parseFloat(depositAmount));
+      const res = await savingsAPI.list();
+      if (res?.data) setGoals(res.data);
+      setDepositGoalId(null);
+      setDepositAmount('');
+    } catch (err) {
+      console.error('Deposit failed:', err);
+    } finally {
+      setDepositLoading(false);
     }
   };
 
@@ -94,9 +105,8 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
 
           {/* Goals Section */}
           <div className="space-y-5">
-            <div className="flex items-center justify-between px-2">
+            <div className="px-2">
               <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Active Goals</span>
-              <button className="text-[10px] font-display font-black text-[var(--accent)] uppercase tracking-[0.2em]">Manage →</button>
             </div>
 
             {loading ? (
@@ -133,56 +143,60 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
                               </div>
                             </div>
                           </div>
-                          <div className="px-3 py-1 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[11px] font-mono-num font-black text-[var(--accent)]">
-                            {Math.round(progress)}%
+                          <div className="flex items-center gap-2">
+                            <div className="px-3 py-1 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[11px] font-mono-num font-black text-[var(--accent)]">
+                              {Math.round(progress)}%
+                            </div>
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => setDepositGoalId(depositGoalId === goal.id ? null : goal.id)}
+                              className="w-8 h-8 rounded-full bg-[var(--success)]/10 border border-[var(--success)]/20 flex items-center justify-center text-[var(--success)] hover:bg-[var(--success)]/20 transition-all"
+                            >
+                              <PlusCircle size={16} />
+                            </motion.button>
                           </div>
                         </div>
-                        <div className="bg-white/5 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-white/5 rounded-full h-1.5 overflow-hidden mb-4">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(progress, 100)}%` }}
                             className="accent-gradient h-full rounded-full"
                           />
                         </div>
+                        <AnimatePresence>
+                          {depositGoalId === goal.id && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="flex gap-3 pt-2">
+                                <Input
+                                  type="number"
+                                  placeholder="Amount (USDT)"
+                                  value={depositAmount}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDepositAmount(e.target.value)}
+                                  className="flex-1 text-sm h-10 px-3 py-2"
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleDeposit(goal.id)}
+                                  disabled={!depositAmount || depositLoading}
+                                  className="h-10 px-4 rounded-xl flex-shrink-0"
+                                >
+                                  {depositLoading ? <Loader2 size={14} className="animate-spin" /> : 'Deposit'}
+                                </Button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </Card>
                     </motion.div>
                   );
                 })}
               </div>
             )}
-          </div>
-
-          {/* Automation Rules */}
-          <div className="glass-strong rounded-[40px] p-8 space-y-6 border-white/5 bg-white/[0.01]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[var(--warning)]/10 flex items-center justify-center text-[var(--warning)]">
-                  <Zap size={20} fill="currentColor" />
-                </div>
-                <h4 className="text-[14px] font-display font-black text-[var(--text-primary)] uppercase tracking-wider">Auto-Save</h4>
-              </div>
-              <ChevronRight size={18} className="text-[var(--text-muted)]" />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 group hover:border-[var(--success)]/30 transition-all cursor-pointer">
-                <div className="space-y-0.5">
-                   <div className="text-[13px] font-display font-black">Round-ups</div>
-                   <div className="text-[10px] text-[var(--text-muted)]">Save change from bills</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-display font-black text-[var(--success)] uppercase tracking-[0.2em] bg-[var(--success)]/10 px-3 py-1.5 rounded-xl border border-[var(--success)]/20">Active</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 opacity-40 grayscale group hover:opacity-100 hover:grayscale-0 transition-all cursor-pointer">
-                <div className="space-y-0.5">
-                   <div className="text-[13px] font-display font-black">Smart Recurring</div>
-                   <div className="text-[10px] text-[var(--text-muted)]">Weekly USDT deposits</div>
-                </div>
-                <span className="text-[10px] font-display font-black text-[var(--text-muted)] uppercase tracking-[0.2em] bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">Paused</span>
-              </div>
-            </div>
           </div>
 
           {/* Educational Insight */}

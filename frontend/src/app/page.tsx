@@ -8,6 +8,7 @@ import { LinksScreen } from '@/screens/LinksScreen';
 import { SavingsScreen } from '@/screens/SavingsScreen';
 import { HistoryScreen } from '@/screens/HistoryScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
+import { AIScreen } from '@/screens/AIScreen';
 import { TabNav } from '@/components/layout/TabNav';
 import {
   SendModal,
@@ -15,6 +16,7 @@ import {
   ConvertModal,
   AddBillModal,
   CreateLinkModal,
+  CreateSavingsGoalModal,
 } from '@/screens/Modals';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,6 +28,7 @@ function AppContent() {
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [showAddBillModal, setShowAddBillModal] = useState(false);
   const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
+  const [showCreateGoalModal, setShowCreateGoalModal] = useState(false);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -40,6 +43,18 @@ function AppContent() {
     }
 
     switch (activeTab) {
+      case 'history':
+        return (
+          <HistoryScreen
+            onSettingsClick={() => setShowSettings(true)}
+          />
+        );
+      case 'ai':
+        return (
+          <AIScreen
+            onSettingsClick={() => setShowSettings(true)}
+          />
+        );
       case 'wallet':
         return (
           <WalletScreen
@@ -68,7 +83,7 @@ function AppContent() {
       case 'savings':
         return (
           <SavingsScreen
-            onNewGoalClick={() => {}}
+            onNewGoalClick={() => setShowCreateGoalModal(true)}
             onSettingsClick={() => setShowSettings(true)}
           />
         );
@@ -99,6 +114,7 @@ function AppContent() {
       <ConvertModal isOpen={showConvertModal} onClose={() => setShowConvertModal(false)} />
       <AddBillModal isOpen={showAddBillModal} onClose={() => setShowAddBillModal(false)} />
       <CreateLinkModal isOpen={showCreateLinkModal} onClose={() => setShowCreateLinkModal(false)} />
+      <CreateSavingsGoalModal isOpen={showCreateGoalModal} onClose={() => setShowCreateGoalModal(false)} />
     </div>
   );
 }

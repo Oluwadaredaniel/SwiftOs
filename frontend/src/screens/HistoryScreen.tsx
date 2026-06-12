@@ -2,26 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Card, Skeleton } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
-import { formatCurrency, formatDate, formatTime, getTransactionIcon } from '@/lib/utils';
+import { formatCurrency, formatDate, formatTime } from '@/lib/utils';
 import { transactionsAPI } from '@/lib/api';
+import { ArrowRightLeft, ArrowUpRight, ArrowDownLeft, Smartphone, FileText, Share2, TrendingUp, Inbox, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface HistoryScreenProps {
   onSettingsClick: () => void;
   onTransactionClick?: (txId: string) => void;
 }
-
-import { useState, useEffect } from 'react';
-import { useStore } from '@/store/useStore';
-import { Card, Skeleton } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Header } from '@/components/layout/Header';
-import { formatCurrency, formatDate, formatTime } from '@/lib/utils';
-import { transactionsAPI } from '@/lib/api';
-import { ArrowRightLeft, Smartphone, FileText, Share2, TrendingUp, Inbox, Calendar, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistoryScreenProps) => {
   const transactions = useStore((state) => state.transactions);
@@ -44,7 +35,9 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
 
   const getTxIcon = (type: string) => {
     switch (type) {
-      case 'bill': return <Smartphone className="text-[var(--success)]" size={20} />;
+      case 'send': return <ArrowUpRight className="text-[var(--danger)]" size={20} />;
+      case 'receive': return <ArrowDownLeft className="text-[var(--success)]" size={20} />;
+      case 'bill': return <Smartphone className="text-[var(--accent)]" size={20} />;
       case 'convert': return <ArrowRightLeft className="text-[var(--accent-2)]" size={20} />;
       case 'link': return <Share2 className="text-[var(--accent)]" size={20} />;
       case 'save': return <TrendingUp className="text-[var(--warning)]" size={20} />;
@@ -54,6 +47,7 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
 
   const filters = [
     { id: 'all', label: 'All' },
+    { id: 'send', label: 'Send' },
     { id: 'bill', label: 'Bills' },
     { id: 'convert', label: 'Swap' },
     { id: 'link', label: 'Links' },
@@ -79,11 +73,8 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
         <div className="space-y-10 py-4">
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between px-1">
+            <div className="px-1">
                <h2 className="text-3xl font-display font-black text-[var(--text-primary)] tracking-tighter">Activity</h2>
-               <div className="w-10 h-10 rounded-2xl glass flex items-center justify-center text-[var(--text-muted)]">
-                 <Search size={20} />
-               </div>
             </div>
 
             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">

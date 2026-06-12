@@ -12,6 +12,10 @@ export interface WalletBalance {
   usd: number;
   usdt: number;
   usdt_address?: string;
+  rates?: {
+    usdt_ngn: number;
+    usd_ngn: number;
+  };
 }
 
 export interface Transaction {
@@ -31,9 +35,12 @@ export interface Bill {
   amount: number;
   frequency: 'once' | 'weekly' | 'monthly' | 'biweekly';
   dueDate: Date;
-  category: 'data' | 'airtime' | 'tv';
+  category: 'data' | 'airtime' | 'tv' | 'electricity';
   provider: string;
   status: 'active' | 'paused' | 'completed';
+  billersCode?: string;
+  variationCode?: string;
+  serviceID?: string;
 }
 
 export interface SwiftyLink {

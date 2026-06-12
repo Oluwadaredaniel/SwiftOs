@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Wallet, FileText, Share2, TrendingUp } from 'lucide-react';
+import { Wallet, FileText, Share2, TrendingUp, Bot } from 'lucide-react';
 import { useTelegram } from '@/hooks/useTelegram';
 
 interface TabNavProps {
@@ -12,6 +12,7 @@ interface TabNavProps {
 const TABS = [
   { id: 'wallet', label: 'Wallet', icon: Wallet },
   { id: 'bills', label: 'Bills', icon: FileText },
+  { id: 'ai', label: 'AI', icon: Bot },
   { id: 'links', label: 'Links', icon: Share2 },
   { id: 'savings', label: 'Savings', icon: TrendingUp },
 ];

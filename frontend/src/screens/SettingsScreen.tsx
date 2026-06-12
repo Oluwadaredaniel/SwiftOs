@@ -1,11 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useStore } from '@/store/useStore';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Header } from '@/components/layout/Header';
-import { ChevronRight } from 'lucide-react';
+import { tokenStore } from '@/lib/api';
+import { ArrowLeft, User, Copy, Check, LogOut } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface SettingsScreenProps {
   onBackClick: () => void;
@@ -14,93 +14,86 @@ interface SettingsScreenProps {
 export const SettingsScreen = ({ onBackClick }: SettingsScreenProps) => {
   const { user, close } = useTelegram();
   const appUser = useStore((state) => state.user);
+  const [copied, setCopied] = useState(false);
+
+  const userId = String(user?.id || appUser?.id || '');
+
+  const handleCopyId = async () => {
+    if (!userId) return;
+    await navigator.clipboard.writeText(userId).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleLogout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-      close?.();
-    }
+    tokenStore.clear();
+    close?.();
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="bg-[var(--bg-primary)]/40 backdrop-blur-xl border-b border-[var(--glass-border)] px-4 py-3 flex items-center gap-3 sticky top-0 z-30">
-        <Button size="sm" variant="secondary" onClick={onBackClick}>
-          ← Back
-        </Button>
-        <h2 className="text-lg font-display font-bold text-[var(--text-primary)]">Settings</h2>
+    <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
+      <div className="flex items-center gap-4 px-6 py-5">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={onBackClick}
+          className="w-10 h-10 rounded-2xl glass flex items-center justify-center text-[var(--text-secondary)] border border-white/5"
+        >
+          <ArrowLeft size={20} />
+        </motion.button>
+        <h2 className="text-2xl font-display font-black text-[var(--text-primary)] tracking-tighter">Settings</h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-28">
-        <div className="p-4 space-y-6">
-          <div>
-            <h3 className="text-xs font-display font-bold text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-3">Profile</h3>
-            <Card className="space-y-3">
-              <div>
-                <div className="text-xs text-[var(--text-secondary)]">Username</div>
-                <div className="text-sm font-display font-bold text-[var(--text-primary)]">@{user?.username || 'anonymous'}</div>
+      <div className="flex-1 overflow-y-auto pb-40 px-6 custom-scrollbar">
+        <div className="space-y-5">
+
+          {/* Profile */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-strong rounded-[40px] p-7 space-y-6 border-white/10"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-[20px] accent-gradient flex items-center justify-center text-black flex-shrink-0">
+                <User size={28} />
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">Telegram ID</div>
-                <div className="text-sm font-mono-num font-semibold text-[var(--text-primary)]">{user?.id}</div>
-              </div>
-              <div>
-                <div className="text-xs text-[var(--text-secondary)]">Name</div>
-                <div className="text-sm font-display font-bold text-[var(--text-primary)]">
-                  {user?.first_name} {user?.last_name || ''}
+                <div className="text-[19px] font-display font-black text-[var(--text-primary)] leading-tight">
+                  {user?.first_name}{user?.last_name ? ` ${user.last_name}` : ''}
+                </div>
+                <div className="text-[13px] text-[var(--text-secondary)] font-display font-bold">
+                  @{user?.username || 'anonymous'}
                 </div>
               </div>
-            </Card>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-display font-bold text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-3">Security</h3>
-            <div className="space-y-2">
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">Two-Factor Auth</span>
-                <ChevronRight size={20} className="text-[var(--text-secondary)]" />
-              </Card>
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">Session Timeout</span>
-                <span className="text-xs text-[var(--text-secondary)] font-mono-num">5 min</span>
-              </Card>
             </div>
-          </div>
 
-          <div>
-            <h3 className="text-xs font-display font-bold text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-3">Preferences</h3>
-            <div className="space-y-2">
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">Default Currency</span>
-                <span className="text-xs text-[var(--text-secondary)] font-mono-num">NGN</span>
-              </Card>
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">Auto-Convert</span>
-                <span className="text-[11px] font-display font-bold bg-[var(--success)]/20 text-[var(--success)] border border-[var(--success)]/30 px-2.5 py-1 rounded-full">ON</span>
-              </Card>
+            <div className="border-t border-white/5 pt-5 flex items-center justify-between">
+              <div>
+                <div className="text-[10px] font-display uppercase tracking-[0.25em] text-[var(--text-muted)] mb-1 font-black opacity-60">User ID</div>
+                <div className="text-[15px] font-mono-num font-bold text-[var(--text-primary)]">{userId || '—'}</div>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={handleCopyId}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-[11px] font-display font-black uppercase tracking-widest"
+              >
+                {copied ? <Check size={13} /> : <Copy size={13} />}
+                {copied ? 'Copied' : 'Copy ID'}
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
-          <div>
-            <h3 className="text-xs font-display font-bold text-[var(--text-secondary)] uppercase tracking-[0.18em] mb-3">Help</h3>
-            <div className="space-y-2">
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">FAQ</span>
-                <ChevronRight size={20} className="text-[var(--text-secondary)]" />
-              </Card>
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">Support</span>
-                <ChevronRight size={20} className="text-[var(--text-secondary)]" />
-              </Card>
-              <Card className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-[var(--text-primary)]">Privacy Policy</span>
-                <ChevronRight size={20} className="text-[var(--text-secondary)]" />
-              </Card>
-            </div>
-          </div>
+          {/* Logout */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-3 h-[64px] rounded-[28px] bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] font-display font-black text-[14px] uppercase tracking-wider hover:bg-[var(--danger)]/20 transition-colors"
+            >
+              <LogOut size={20} />
+              Close App
+            </motion.button>
+          </motion.div>
 
-          <Button variant="danger" size="lg" onClick={handleLogout} className="w-full">
-            Logout
-          </Button>
         </div>
       </div>
     </div>

@@ -1,13 +1,13 @@
 'use client';
 
+import { Plus, TrendingUp, FileText, Smartphone, Tv, Zap, Globe, CheckCircle2, Trash2, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Plus, Clock, CheckCircle, TrendingUp } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Card, Skeleton } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
 import { formatCurrency } from '@/lib/utils';
-import { billsAPI } from '@/lib/api';
+import { billsAPI, autobillsAPI } from '@/lib/api';
+import { Bill } from '@/types';
 import { motion } from 'framer-motion';
 
 interface BillsScreenProps {
@@ -15,19 +15,12 @@ interface BillsScreenProps {
   onSettingsClick: () => void;
 }
 
-import { Plus, TrendingUp, FileText, Smartphone, Tv, Zap, Globe, Search, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { useStore } from '@/store/useStore';
-import { Button } from '@/components/ui/Button';
-import { Card, Skeleton } from '@/components/ui/Card';
-import { Header } from '@/components/layout/Header';
-import { formatCurrency } from '@/lib/utils';
-import { billsAPI } from '@/lib/api';
-import { motion } from 'framer-motion';
-
 export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProps) => {
   const bills = useStore((state) => state.bills);
   const setBills = useStore((state) => state.setBills);
   const loading = useStore((state) => state.loading);
+  const [payLoading, setPayLoading] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   useEffect(() => {
     loadBills();
@@ -39,6 +32,37 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
       if (res?.data) setBills(res.data);
     } catch (err) {
       console.error('Failed to load bills:', err);
+    }
+  };
+
+  const handlePayBill = async (bill: Bill) => {
+    if (!bill.serviceID || !bill.billersCode || payLoading) return;
+    setPayLoading(bill.id);
+    try {
+      await billsAPI.payBill({
+        serviceID: bill.serviceID,
+        amount: bill.amount,
+        phone: bill.billersCode,
+        variation_code: bill.variationCode,
+      });
+      await loadBills();
+    } catch (err) {
+      console.error('Pay bill failed:', err);
+    } finally {
+      setPayLoading(null);
+    }
+  };
+
+  const handleDeleteBill = async (id: string) => {
+    if (deleteLoading) return;
+    setDeleteLoading(id);
+    try {
+      await autobillsAPI.delete(id);
+      await loadBills();
+    } catch (err) {
+      console.error('Delete bill failed:', err);
+    } finally {
+      setDeleteLoading(null);
     }
   };
 
@@ -97,9 +121,8 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
           </div>
 
           <div className="space-y-5">
-            <div className="flex items-center justify-between px-2">
+            <div className="px-2">
               <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Scheduled Payments</span>
-              <button className="text-[10px] font-display font-black text-[var(--accent)] uppercase tracking-[0.2em]">Autopay ON</button>
             </div>
 
             {loading ? (
@@ -128,12 +151,24 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
                       </div>
                       <div className="text-right flex flex-col items-end gap-2">
                         <div className="text-[17px] font-mono-num font-black text-[var(--text-primary)] leading-none">{formatCurrency(bill.amount, 'NGN')}</div>
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          className="h-8 px-5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-display font-black uppercase tracking-widest border border-[var(--accent)]/20 hover:bg-[var(--accent)] hover:text-black transition-colors"
-                        >
-                          Pay
-                        </motion.button>
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handlePayBill(bill)}
+                            disabled={!bill.serviceID || !bill.billersCode || payLoading === bill.id}
+                            className="h-8 px-5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-display font-black uppercase tracking-widest border border-[var(--accent)]/20 hover:bg-[var(--accent)] hover:text-black transition-colors disabled:opacity-40"
+                          >
+                            {payLoading === bill.id ? <Loader2 size={12} className="animate-spin" /> : 'Pay'}
+                          </motion.button>
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDeleteBill(bill.id)}
+                            disabled={deleteLoading === bill.id}
+                            className="h-8 w-8 rounded-full bg-[var(--danger)]/10 text-[var(--danger)] flex items-center justify-center border border-[var(--danger)]/20 hover:bg-[var(--danger)]/20 transition-colors disabled:opacity-40"
+                          >
+                            {deleteLoading === bill.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                          </motion.button>
+                        </div>
                       </div>
                     </Card>
                   </motion.div>
