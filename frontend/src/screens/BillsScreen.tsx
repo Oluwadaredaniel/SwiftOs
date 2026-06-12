@@ -72,7 +72,7 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
     <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-40 px-6 pt-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pb-32 px-6 pt-2 custom-scrollbar">
         <div className="space-y-10">
 
           <motion.div
@@ -83,9 +83,12 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
             <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[var(--accent)]/10 blur-[80px]" />
             <div className="relative flex justify-between items-center">
               <div>
-                <div className="text-[10px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] mb-4 opacity-60 font-black">Monthly Outflow</div>
-                <div className="text-4xl font-mono-num font-black text-gradient leading-none tracking-tighter">
-                  ₦{(upcomingBills.reduce((sum, b) => sum + b.amount, 0) * (4 / 7)).toLocaleString()}
+                <div className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3">Monthly Outflow</div>
+                <div className="text-4xl font-mono-num font-bold text-gradient leading-none tracking-tight">
+                  ₦{upcomingBills.reduce((sum, b) => {
+                    const mult: Record<string, number> = { once: 0, weekly: 4, monthly: 1, biweekly: 2 };
+                    return sum + b.amount * (mult[b.frequency] ?? 1);
+                  }, 0).toLocaleString()}
                 </div>
               </div>
               <div className="w-14 h-14 rounded-[20px] glass flex items-center justify-center text-[var(--accent)] shadow-2xl">
@@ -122,7 +125,7 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
 
           <div className="space-y-5">
             <div className="px-2">
-              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Scheduled Payments</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">Scheduled Payments</span>
             </div>
 
             {loading ? (
@@ -144,7 +147,7 @@ export const BillsScreen = ({ onAddBillClick, onSettingsClick }: BillsScreenProp
                     <Card className="flex items-center justify-between py-6 px-7 rounded-[32px] border-white/5 bg-white/[0.01] hover:bg-white/[0.04]">
                       <div className="flex-1">
                         <div className="text-[16px] font-display font-black text-[var(--text-primary)] leading-none mb-1.5">{bill.name}</div>
-                        <div className="text-[11px] text-[var(--text-muted)] font-display uppercase tracking-[0.15em] font-black opacity-60 flex items-center gap-2">
+                        <div className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-2">
                           <CheckCircle2 size={12} className="text-[var(--success)]" />
                           {bill.frequency} • Next: {new Date(bill.dueDate).toLocaleDateString()}
                         </div>

@@ -29,7 +29,8 @@ export const TabNav = ({ activeTab, onTabChange }: TabNavProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-strong fixed bottom-6 left-6 right-6 rounded-[28px] px-2 py-2 flex gap-1 justify-around z-40 border-t border-white/5"
+      style={{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem))' }}
+      className="glass-strong fixed left-5 right-5 rounded-[28px] px-2 py-2 flex gap-1 justify-around z-40 border border-white/[0.08]"
     >
       {TABS.map(({ id, label, icon: Icon }) => (
         <motion.button
@@ -41,7 +42,7 @@ export const TabNav = ({ activeTab, onTabChange }: TabNavProps) => {
           {activeTab === id && (
             <motion.div
               layoutId="tabIndicator"
-              className="absolute inset-0 rounded-2xl accent-gradient opacity-20 border border-[var(--accent)]/40"
+              className="absolute inset-0 rounded-2xl bg-[var(--accent)]/12 border border-[var(--accent)]/30"
               transition={{ type: 'spring', damping: 22, stiffness: 300 }}
             />
           )}

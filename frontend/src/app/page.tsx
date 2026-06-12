@@ -93,7 +93,7 @@ function AppContent() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden bg-transparent">
+    <div className="w-full h-full flex flex-col overflow-hidden bg-transparent">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
@@ -122,7 +122,7 @@ function AppContent() {
 export default function Home() {
   return (
     <AppProvider>
-      <div className="app-shell">
+      <div className="h-full">
         <AppContent />
       </div>
     </AppProvider>

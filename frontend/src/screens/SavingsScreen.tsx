@@ -71,7 +71,7 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
     <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-40 px-6 pt-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pb-32 px-6 pt-2 custom-scrollbar">
         <div className="space-y-9">
 
           {/* Wealth Overview Card */}
@@ -82,7 +82,7 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
           >
             <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[var(--success)]/10 blur-[100px] opacity-60" />
             <div className="relative z-10">
-              <div className="text-[11px] font-display uppercase tracking-[0.4em] text-[var(--text-secondary)] mb-5 opacity-60 font-black">Portfolio Stash</div>
+              <div className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3">Portfolio Stash</div>
               <div className="text-5xl font-mono-num font-black text-gradient mb-7 tracking-tighter">
                 {formatCurrency(totalSaved, 'USDT')}
               </div>
@@ -106,7 +106,7 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
           {/* Goals Section */}
           <div className="space-y-5">
             <div className="px-2">
-              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Active Goals</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">Active Goals</span>
             </div>
 
             {loading ? (
@@ -138,7 +138,7 @@ export const SavingsScreen = ({ onNewGoalClick, onSettingsClick }: SavingsScreen
                             </div>
                             <div>
                               <div className="text-[16px] font-display font-black text-[var(--text-primary)] leading-none mb-1.5">{goal.title}</div>
-                              <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-widest font-black opacity-60">
+                              <div className="text-[11px] text-[var(--text-muted)] font-medium">
                                 {formatCurrency(goal.currentAmount, 'USDT')} of {formatCurrency(goal.targetAmount, 'USDT')}
                               </div>
                             </div>

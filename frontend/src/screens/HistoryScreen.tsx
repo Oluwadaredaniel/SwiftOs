@@ -33,6 +33,15 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
     }
   };
 
+  const getTxBg = (type: string): string => ({
+    send: 'rgba(255,59,107,0.13)',
+    receive: 'rgba(0,255,157,0.13)',
+    bill: 'rgba(0,217,255,0.13)',
+    convert: 'rgba(139,92,246,0.13)',
+    link: 'rgba(0,217,255,0.13)',
+    save: 'rgba(255,179,71,0.13)',
+  } as Record<string, string>)[type] || 'rgba(255,255,255,0.06)';
+
   const getTxIcon = (type: string) => {
     switch (type) {
       case 'send': return <ArrowUpRight className="text-[var(--danger)]" size={20} />;
@@ -69,7 +78,7 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
     <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-40 px-6 pt-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pb-32 px-6 pt-2 custom-scrollbar">
         <div className="space-y-10 py-4">
 
           <div className="space-y-6">
@@ -120,12 +129,12 @@ export const HistoryScreen = ({ onSettingsClick, onTransactionClick }: HistorySc
                     {txs.map((tx) => (
                       <Card key={tx.id} onClick={() => onTransactionClick?.(tx.id)} className="cursor-pointer flex items-center justify-between py-6 px-7 rounded-[32px] border-white/5 bg-white/[0.01] hover:bg-white/[0.03]">
                         <div className="flex items-center gap-5">
-                          <div className="w-14 h-14 rounded-[20px] glass flex items-center justify-center shadow-sm border-white/5 bg-white/5">
+                          <div className="w-11 h-11 rounded-[14px] flex-shrink-0 flex items-center justify-center" style={{ background: getTxBg(tx.type) }}>
                             {getTxIcon(tx.type)}
                           </div>
                           <div>
                             <div className="text-[16px] font-display font-black text-[var(--text-primary)] leading-none mb-1.5">{tx.description}</div>
-                            <div className="text-[11px] text-[var(--text-muted)] mt-1 font-mono-num uppercase tracking-[0.15em] font-black opacity-60">{formatTime(tx.timestamp)}</div>
+                            <div className="text-[11px] text-[var(--text-muted)] mt-1 font-medium">{formatTime(tx.timestamp)}</div>
                           </div>
                         </div>
                         <div className={`text-[17px] font-mono-num font-black ${tx.type === 'send' || tx.type === 'bill' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>

@@ -140,7 +140,7 @@ export const AIScreen = ({ onSettingsClick }: AIScreenProps) => {
             animate={{ opacity: 1, y: 0 }}
             className="py-4 space-y-3"
           >
-            <p className="text-[10px] font-display uppercase tracking-[0.3em] text-[var(--text-muted)] px-2 opacity-60">Try saying…</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)] px-2">Try saying…</p>
             <div className="flex flex-col gap-2">
               {SUGGESTIONS.map((s, i) => (
                 <motion.button
@@ -220,7 +220,7 @@ export const AIScreen = ({ onSettingsClick }: AIScreenProps) => {
       </div>
 
       {/* Input bar */}
-      <div className="px-4 pb-28 pt-3">
+      <div className="px-4 pb-32 pt-3">
         <div className="glass-strong flex items-center gap-3 px-5 py-3 rounded-[28px] border-white/10">
           <input
             type="text"

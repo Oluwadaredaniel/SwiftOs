@@ -44,7 +44,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="h-full bg-[var(--bg-primary)] text-[var(--text-primary)]">
       <AnimatePresence mode="wait">
         {!isReady ? (
           <motion.div
@@ -90,6 +90,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
+            className="h-full"
           >
             {children}
           </motion.div>

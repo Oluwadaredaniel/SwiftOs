@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, ArrowRightLeft, Zap, Info, HelpCircle, Send, Download, Copy, Check } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, Zap, Info, HelpCircle, Send, Download, Copy, Check, Share2, TrendingUp, FileText } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useTelegram } from '@/hooks/useTelegram';
 import { formatCurrency, copyToClipboard } from '@/lib/utils';
@@ -10,6 +10,23 @@ import { Card, BalanceCard, Skeleton } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
 import { walletAPI, transactionsAPI } from '@/lib/api';
 import { motion, Variants, AnimatePresence } from 'framer-motion';
+
+const TX_STYLE: Record<string, { Icon: any; color: string; bg: string }> = {
+  send:    { Icon: ArrowUpRight,   color: 'var(--danger)',    bg: 'rgba(255,59,107,0.13)' },
+  receive: { Icon: ArrowDownLeft,  color: 'var(--success)',   bg: 'rgba(0,255,157,0.13)' },
+  bill:    { Icon: Zap,            color: 'var(--accent)',    bg: 'rgba(0,217,255,0.13)' },
+  convert: { Icon: ArrowRightLeft, color: 'var(--accent-2)',  bg: 'rgba(139,92,246,0.13)' },
+  link:    { Icon: Share2,         color: 'var(--accent)',    bg: 'rgba(0,217,255,0.13)' },
+  save:    { Icon: TrendingUp,     color: 'var(--warning)',   bg: 'rgba(255,179,71,0.13)' },
+};
+const TxBubble = ({ type }: { type: string }) => {
+  const { Icon, color, bg } = TX_STYLE[type] || { Icon: FileText, color: 'var(--text-muted)', bg: 'rgba(255,255,255,0.06)' };
+  return (
+    <div className="w-11 h-11 rounded-[14px] flex-shrink-0 flex items-center justify-center" style={{ background: bg }}>
+      <Icon size={17} style={{ color }} />
+    </div>
+  );
+};
 
 export const WalletScreen = ({
   onSendClick,
@@ -79,8 +96,8 @@ export const WalletScreen = ({
     <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-40 px-6 pt-2 custom-scrollbar">
-        <motion.div variants={container} initial="hidden" animate="show" className="space-y-9">
+      <div className="flex-1 overflow-y-auto pb-32 px-6 pt-2 custom-scrollbar">
+        <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
 
           {/* Main Portfolio Header */}
           <motion.div variants={item}>
@@ -106,7 +123,7 @@ export const WalletScreen = ({
               className="w-full flex items-center justify-center gap-3 h-[72px] rounded-[28px] accent-gradient text-black font-display font-black shadow-[0_20px_40px_rgba(0,217,255,0.25)] border-0"
             >
               <div className="w-9 h-9 rounded-2xl bg-black/10 flex items-center justify-center">
-                <Send size={20} fill="currentColor" />
+                <Send size={20} />
               </div>
               <span className="text-[16px] uppercase tracking-wider">Send Money</span>
             </motion.button>
@@ -154,7 +171,7 @@ export const WalletScreen = ({
           {/* Detailed Wallet Breakdown */}
           <motion.div variants={item} className="space-y-5">
             <div className="flex items-center justify-between px-2">
-              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Digital Assets</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">Digital Assets</span>
               <button onClick={() => setShowGuide(true)} className="flex items-center gap-1.5 text-[10px] font-display font-bold text-[var(--accent)] uppercase tracking-widest bg-[var(--accent)]/10 px-3 py-1.5 rounded-full border border-[var(--accent)]/20">
                 <HelpCircle size={12} />
                 <span>Guide</span>
@@ -206,7 +223,7 @@ export const WalletScreen = ({
           {/* Activity Section */}
           <motion.div variants={item} className="space-y-5">
             <div className="flex items-center justify-between px-2">
-              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Live Activity</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">Recent Activity</span>
               {transactions && transactions.length > 0 && (
                 <button onClick={onViewAllTransactions} className="text-[10px] font-display font-black text-[var(--accent)] uppercase tracking-[0.2em]">
                   History →
@@ -230,19 +247,17 @@ export const WalletScreen = ({
             ) : (
               <div className="space-y-3">
                 {transactions.slice(0, 3).map((tx, idx) => (
-                  <Card key={tx.id} className="flex items-center justify-between py-6 px-7 rounded-[32px] border-white/5 bg-white/[0.01] hover:bg-white/[0.04] active:scale-[0.98] transition-all">
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-[20px] glass flex items-center justify-center text-2xl shadow-xl border-white/5 bg-white/5">
-                        {tx.type === 'bill' ? '📱' : tx.type === 'convert' ? '🔄' : tx.type === 'link' ? '🔗' : '📥'}
-                      </div>
+                    <Card key={tx.id} className="flex items-center justify-between py-4 px-5 rounded-2xl border-white/5 bg-white/[0.01] hover:bg-white/[0.04] active:scale-[0.98] transition-all">
+                    <div className="flex items-center gap-4">
+                      <TxBubble type={tx.type} />
                       <div>
-                        <div className="text-[16px] font-display font-black text-[var(--text-primary)] leading-none mb-1.5">{tx.description}</div>
-                        <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-widest font-black opacity-60">
+                        <div className="text-[14px] font-semibold text-[var(--text-primary)] leading-tight mb-1">{tx.description}</div>
+                        <div className="text-[11px] text-[var(--text-muted)] font-medium">
                           {new Date(tx.timestamp).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
                     </div>
-                    <div className={`text-[17px] font-mono-num font-black ${tx.type === 'bill' || tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
+                    <div className={`text-[15px] font-mono-num font-bold ${tx.type === 'bill' || tx.type === 'send' ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>
                       {tx.type === 'bill' || tx.type === 'send' ? '−' : '+'}
                       {formatCurrency(tx.amount, tx.currency as any)}
                     </div>

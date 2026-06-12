@@ -42,26 +42,24 @@ export const BalanceCard = ({
   if (variant === 'large') {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.01 }}
-        className="relative overflow-hidden p-9 rounded-[48px] text-center glass-strong border-white/10"
+        className="relative overflow-hidden px-8 pt-9 pb-10 rounded-[40px] glass-strong border-white/10"
       >
-        {/* Animated Background Glow */}
-        <div className={`absolute -right-24 -top-24 h-80 w-80 rounded-full opacity-20 blur-[80px] bg-gradient-to-tr ${gradientClass} animate-pulse`} />
-        <div className={`absolute -left-24 -bottom-24 h-80 w-80 rounded-full opacity-10 blur-[80px] bg-gradient-to-tr ${gradientClass} animate-pulse`} style={{ animationDelay: '1s' }} />
+        <div className={`pointer-events-none absolute -right-8 -top-8 h-44 w-44 rounded-full opacity-[0.13] blur-[48px] bg-gradient-to-br ${gradientClass}`} />
 
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="text-[11px] font-display uppercase tracking-[0.4em] text-[var(--text-secondary)] mb-5 opacity-60">
+        <div className="relative z-10">
+          <div className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3">
             {label}
           </div>
-          <div className="text-5xl font-mono-num font-extrabold tracking-tighter mb-5 text-gradient flex items-baseline gap-1">
-            <span className="text-[32px] opacity-70 font-display">₦</span>
-            {amount.split('.')[0]}<span className="opacity-25 text-[28px]">.{amount.split('.')[1] || '00'}</span>
+
+          <div className="text-[52px] font-mono-num font-bold text-gradient leading-none tracking-tight mb-5">
+            {amount}
           </div>
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-[20px] bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-lg">
-            <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
-            <span className="text-[10px] font-display font-black uppercase tracking-[0.2em] text-[var(--text-primary)]">Secured by SwiftyEx</span>
+
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" style={{ boxShadow: '0 0 6px var(--success)' }} />
+            <span className="text-[11px] font-medium text-[var(--text-muted)]">Balances are live</span>
           </div>
         </div>
       </motion.div>
@@ -77,29 +75,24 @@ export const BalanceCard = ({
       <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-10 blur-3xl bg-gradient-to-tr ${gradientClass}`} />
 
       <div className="relative flex justify-between items-center">
-        <div className="space-y-1">
-          <div className="text-[10px] font-display uppercase tracking-[0.2em] text-[var(--text-secondary)] opacity-60">
+        <div className="space-y-0.5">
+          <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
             {label}
           </div>
-          <div className="text-[24px] font-mono-num font-bold tracking-tight">
-            {amount.split('.')[0]}<span className="opacity-30 text-[18px]">.{amount.split('.')[1] || '00'}</span>
+          <div className="text-[22px] font-mono-num font-bold tracking-tight">
+            {amount}
           </div>
           {subtext && (
-            <div className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-1.5">
+            <div className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-1.5 pt-0.5">
                <div className="w-1 h-1 rounded-full bg-white/20" />
                {subtext}
             </div>
           )}
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.15em]">
+          <div className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/8 text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.15em]">
             {currency}
           </div>
-          {variant === 'success' && (
-             <div className="text-[10px] text-[var(--success)] font-bold bg-[var(--success)]/10 px-2 py-0.5 rounded-lg border border-[var(--success)]/20">
-               +2.4% APY
-             </div>
-          )}
         </div>
       </div>
     </motion.div>

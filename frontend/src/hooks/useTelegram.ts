@@ -66,19 +66,26 @@ export const useTelegram = () => {
   const [isTelegram, setIsTelegram] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    // Telegram WebView reports the wrong value for 100vh — sync the real height.
+    const syncHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    syncHeight();
+    window.addEventListener('resize', syncHeight);
+
+    if (window.Telegram?.WebApp) {
       const webApp = window.Telegram.WebApp;
 
-      // Basic check if we are actually inside Telegram
-      if (webApp.initData) {
-        setIsTelegram(true);
-      }
+      if (webApp.initData) setIsTelegram(true);
 
       webApp.ready();
       webApp.expand();
 
       setTg(webApp);
       setIsReady(true);
+
+      // Re-sync after Telegram expands the viewport
+      webApp.onEvent('viewportChanged', syncHeight);
 
       // Sync with Telegram's color scheme
       const root = document.documentElement;
@@ -93,6 +100,8 @@ export const useTelegram = () => {
     } else {
       setIsReady(true);
     }
+
+    return () => window.removeEventListener('resize', syncHeight);
   }, []);
 
   const haptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {

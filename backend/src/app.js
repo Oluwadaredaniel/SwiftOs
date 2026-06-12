@@ -30,12 +30,18 @@ cronService.init();
 // ── Security ───────────────────────────────────────────────────────────────────
 app.use(helmet());
 
-// CORS — only allow the configured frontend origin
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+// CORS — allow configured origins + any Vercel preview deployments
+const rawAllowed = process.env.FRONTEND_URL || 'http://localhost:3000';
+const allowedOrigins = new Set(rawAllowed.split(',').map(s => s.trim()));
+
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin (Telegram Mini App webview, curl, Swagger)
-    if (!origin || origin === allowedOrigin) return cb(null, true);
+    // Allow no-origin requests: Telegram WebView, curl, Swagger
+    if (!origin) return cb(null, true);
+    // Allow exact match from FRONTEND_URL env var (comma-separated)
+    if (allowedOrigins.has(origin)) return cb(null, true);
+    // Allow any Vercel deployment (*.vercel.app)
+    if (/\.vercel\.app$/.test(origin)) return cb(null, true);
     cb(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,

@@ -68,7 +68,7 @@ export const LinksScreen = ({ onCreateLinkClick, onSettingsClick }: LinksScreenP
     <div className="flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       <Header onSettingsClick={onSettingsClick} />
 
-      <div className="flex-1 overflow-y-auto pb-40 px-6 pt-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pb-32 px-6 pt-2 custom-scrollbar">
         <div className="space-y-10">
 
           <motion.div
@@ -93,7 +93,7 @@ export const LinksScreen = ({ onCreateLinkClick, onSettingsClick }: LinksScreenP
 
           <div className="space-y-5">
             <div className="px-2">
-              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">My Active Links</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">My Active Links</span>
             </div>
 
             {loading ? (
@@ -147,7 +147,7 @@ export const LinksScreen = ({ onCreateLinkClick, onSettingsClick }: LinksScreenP
           {/* Claim a Link */}
           <div className="space-y-4">
             <div className="px-2">
-              <span className="text-[11px] font-display uppercase tracking-[0.3em] text-[var(--text-secondary)] font-black opacity-60">Claim a Link</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)]">Claim a Link</span>
             </div>
             <div className="glass-strong rounded-[36px] p-6 space-y-4 border-white/10">
               <div className="flex items-center gap-3">
